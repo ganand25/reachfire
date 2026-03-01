@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Shield } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — FirePath",
-  description: "FirePath Privacy Policy. We collect no personal data. All calculations run in your browser.",
+  title: "Privacy Policy — ReachFire",
+  description: "ReachFire Privacy Policy. We collect no personal data. All calculations run in your browser.",
 };
 
 const EFFECTIVE_DATE = "February 28, 2026";
@@ -20,7 +20,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <div>
           <p className="font-semibold text-sm mb-1">The short version</p>
           <p className="text-sm text-muted-foreground">
-            FirePath collects no personal information. All calculations run entirely in your browser.
+            ReachFire collects no personal information. All calculations run entirely in your browser.
             We have no accounts, no database of user data, no advertising, and no analytics tracking.
             The only optional exception is the AI Insights feature, described in detail below.
           </p>
@@ -32,7 +32,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <section>
           <h2 className="text-lg font-semibold mb-3">1. Who We Are</h2>
           <p className="text-muted-foreground">
-            FirePath (&quot;we,&quot; &quot;us,&quot; or &quot;the Service&quot;) is a free,
+            ReachFire (&quot;we,&quot; &quot;us,&quot; or &quot;the Service&quot;) is a free,
             browser-based FIRE (Financial Independence, Retire Early) planning tool. This Privacy
             Policy explains what information we collect (if any), how we use it, and your rights
             regarding that information.
@@ -62,7 +62,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <section>
           <h2 className="text-lg font-semibold mb-3">3. How the Service Works (Technical)</h2>
           <p className="text-muted-foreground">
-            All FirePath calculators are implemented as client-side JavaScript that runs in your
+            All ReachFire calculators are implemented as client-side JavaScript that runs in your
             browser. When you enter numbers into any calculator, those values are stored only in your
             browser&apos;s memory (React state). They are never sent to a server, never written to a
             database, and are lost when you navigate away or close the tab.
@@ -95,7 +95,7 @@ export default function PrivacyPage(): React.JSX.Element {
           </p>
           <p className="text-muted-foreground">
             Anthropic&apos;s handling of this data is governed by{" "}
-            <strong className="text-foreground">Anthropic&apos;s Privacy Policy</strong>. FirePath
+            <strong className="text-foreground">Anthropic&apos;s Privacy Policy</strong>. ReachFire
             does not store the AI responses on any server — they are displayed in your browser only.
           </p>
         </section>
@@ -103,7 +103,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <section>
           <h2 className="text-lg font-semibold mb-3">5. Cookies and Tracking</h2>
           <p className="text-muted-foreground">
-            FirePath uses one functional browser storage mechanism: your theme preference (light or
+            ReachFire uses one functional browser storage mechanism: your theme preference (light or
             dark mode) is saved to <code className="bg-secondary px-1 rounded">localStorage</code> so
             it persists across visits. This stores only the string &quot;light&quot; or &quot;dark&quot;
             — no personal information.
@@ -117,7 +117,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <section>
           <h2 className="text-lg font-semibold mb-3">6. Third-Party Services</h2>
           <p className="text-muted-foreground">
-            FirePath is hosted on Vercel. When you load the page, your browser makes a standard HTTP
+            ReachFire is hosted on Vercel. When you load the page, your browser makes a standard HTTP
             request to Vercel&apos;s servers, which may log your IP address and request metadata as
             part of standard server operation. This is governed by{" "}
             <strong className="text-foreground">Vercel&apos;s Privacy Policy</strong>. We do not have
@@ -133,7 +133,7 @@ export default function PrivacyPage(): React.JSX.Element {
         <section>
           <h2 className="text-lg font-semibold mb-3">7. Children&apos;s Privacy</h2>
           <p className="text-muted-foreground">
-            FirePath is not directed to children under the age of 13. Because we collect no personal
+            ReachFire is not directed to children under the age of 13. Because we collect no personal
             information from any user, we do not collect personal information from children either.
           </p>
         </section>

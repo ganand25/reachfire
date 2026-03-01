@@ -1,5 +1,5 @@
 {
-  "name": "fire-calculator",
+  "name": "reachfire",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,5 +15,47 @@
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "precommit": "npm run typecheck && npm run lint && npm run test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@supabase/supabase-js": "^2.98.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.34.3",
+    "lucide-react": "^0.575.0",
+    "next": "^15.5.12",
+    "next-themes": "^0.4.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "recharts": "^3.7.0",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.4",
+    "@playwright/test": "^1.58.2",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^25.3.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "autoprefixer": "^10.4.27",
+    "eslint": "^9.39.3",
+    "eslint-config-next": "^16.1.6",
+    "eslint-config-prettier": "^10.1.8",
+    "jsdom": "^28.1.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4.2.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }
