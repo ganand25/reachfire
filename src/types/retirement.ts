@@ -12,6 +12,11 @@ export interface RetirementInputs {
   annualTraditionalContribution: number;
   annualRothContribution: number;
   annualTaxableContribution: number;
+  contributionOverrides: Record<number, {
+    traditional?: number;
+    roth?: number;
+    taxable?: number;
+  }>;
   annualExpenses: number;
   growthRate: number;
   inflationRate: number;

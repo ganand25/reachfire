@@ -65,6 +65,7 @@ export function RetirementClient(): React.JSX.Element {
     annualTraditionalContribution: 23500,
     annualRothContribution: 7000,
     annualTaxableContribution: 12000,
+    contributionOverrides: {},
     annualExpenses: 60000,
     growthRate: 0.07,
     inflationRate: 0.03,
@@ -74,10 +75,36 @@ export function RetirementClient(): React.JSX.Element {
 
   const [selectedStrategy, setSelectedStrategy] = useState("tax-optimized");
   const [showTable, setShowTable] = useState(false);
+  const [showAccumulation, setShowAccumulation] = useState(false);
   const [activeView, setActiveView] = useState<"balances" | "taxes">("balances");
 
   function update<K extends keyof RetirementInputs>(key: K, value: RetirementInputs[K]): void {
     setInputs((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function updateContributionOverride(age: number, field: "traditional" | "roth" | "taxable", value: number): void {
+    setInputs((prev) => {
+      const overrides = { ...prev.contributionOverrides };
+      const existing = overrides[age] ?? {};
+      overrides[age] = { ...existing, [field]: value };
+      return { ...prev, contributionOverrides: overrides };
+    });
+  }
+
+  function resetContributionOverride(age: number, field: "traditional" | "roth" | "taxable"): void {
+    setInputs((prev) => {
+      const overrides = { ...prev.contributionOverrides };
+      if (overrides[age]) {
+        const updated = { ...overrides[age] };
+        delete updated[field];
+        if (Object.keys(updated).length === 0) {
+          delete overrides[age];
+        } else {
+          overrides[age] = updated;
+        }
+      }
+      return { ...prev, contributionOverrides: overrides };
+    });
   }
 
   const strategies = useMemo(() => runAllStrategies(inputs), [inputs]);
@@ -568,13 +595,81 @@ export function RetirementClient(): React.JSX.Element {
               </div>
             </div>
 
+            {/* Editable Accumulation Table */}
+            <div>
+              <button
+                onClick={() => setShowAccumulation(!showAccumulation)}
+                className="flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors"
+              >
+                Pre-Retirement Contributions (Editable)
+                {showAccumulation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showAccumulation && selected.accumulation.length > 0 && (
+                <div className="mt-3 rounded-xl border border-border bg-card overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30">
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">Age</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Contrib</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Contrib</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Contrib</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Balance</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Balance</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Balance</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selected.accumulation.map((y) => {
+                        const hasOverride = inputs.contributionOverrides[y.age];
+                        return (
+                          <tr
+                            key={y.age}
+                            className={cn(
+                              "border-b border-border/50 hover:bg-muted/20 transition-colors",
+                              hasOverride && "bg-primary/5"
+                            )}
+                          >
+                            <td className="px-3 py-1.5 font-medium">{y.age}</td>
+                            <EditableCell
+                              value={y.traditionalContribution}
+                              isOverridden={hasOverride?.traditional !== undefined}
+                              onChange={(v) => updateContributionOverride(y.age, "traditional", v)}
+                              onReset={() => resetContributionOverride(y.age, "traditional")}
+                            />
+                            <EditableCell
+                              value={y.rothContribution}
+                              isOverridden={hasOverride?.roth !== undefined}
+                              onChange={(v) => updateContributionOverride(y.age, "roth", v)}
+                              onReset={() => resetContributionOverride(y.age, "roth")}
+                            />
+                            <EditableCell
+                              value={y.taxableContribution}
+                              isOverridden={hasOverride?.taxable !== undefined}
+                              onChange={(v) => updateContributionOverride(y.age, "taxable", v)}
+                              onReset={() => resetContributionOverride(y.age, "taxable")}
+                            />
+                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.traditionalBalance)}</td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.rothBalance)}</td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.taxableBalance)}</td>
+                            <td className="px-3 py-1.5 text-right tabular-nums font-semibold">{formatMoney(y.totalBalance)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
             {/* Year-by-Year Table */}
             <div>
               <button
                 onClick={() => setShowTable(!showTable)}
                 className="flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors"
               >
-                Year-by-Year Breakdown
+                Withdrawal Year-by-Year Breakdown
                 {showTable ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
 
@@ -754,6 +849,82 @@ export function RetirementClient(): React.JSX.Element {
         </div>
       </div>
     </PageEnter>
+  );
+}
+
+function EditableCell({
+  value,
+  isOverridden,
+  onChange,
+  onReset,
+}: {
+  value: number;
+  isOverridden: boolean;
+  onChange: (v: number) => void;
+  onReset: () => void;
+}): React.JSX.Element {
+  const [editing, setEditing] = useState(false);
+  const [raw, setRaw] = useState("");
+
+  function startEdit(): void {
+    setRaw(String(Math.round(value)));
+    setEditing(true);
+  }
+
+  function commitEdit(): void {
+    setEditing(false);
+    const parsed = parseInt(raw.replace(/[^0-9]/g, ""), 10);
+    if (!isNaN(parsed)) {
+      onChange(parsed);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent): void {
+    if (e.key === "Enter") commitEdit();
+    if (e.key === "Escape") setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <td className="px-1 py-0.5">
+        <input
+          autoFocus
+          type="text"
+          inputMode="numeric"
+          value={raw}
+          onChange={(e) => setRaw(e.target.value)}
+          onBlur={commitEdit}
+          onKeyDown={handleKeyDown}
+          className="w-full px-2 py-1 text-xs text-right tabular-nums rounded border border-primary bg-background outline-none"
+        />
+      </td>
+    );
+  }
+
+  return (
+    <td
+      className={cn(
+        "px-3 py-1.5 text-right tabular-nums cursor-pointer hover:bg-primary/10 transition-colors group",
+        isOverridden && "text-primary font-semibold"
+      )}
+      onClick={startEdit}
+    >
+      <span className="relative">
+        {formatMoney(value)}
+        {isOverridden && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onReset();
+            }}
+            className="ml-1 text-[10px] text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+            title="Reset to default"
+          >
+            x
+          </button>
+        )}
+      </span>
+    </td>
   );
 }
 
