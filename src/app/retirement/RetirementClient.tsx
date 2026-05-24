@@ -55,10 +55,10 @@ const STRATEGY_DESCRIPTIONS: Record<string, string> = {
 
 export function RetirementClient(): React.JSX.Element {
   const [inputs, setInputs] = useState<RetirementInputs>({
-    currentAge: 35,
-    retirementAge: 55,
-    lifeExpectancy: 90,
-    filingStatus: "single",
+    currentAge: 50,
+    retirementAge: 60,
+    lifeExpectancy: 85,
+    filingStatus: "married",
     traditionalBalance: 500000,
     rothBalance: 200000,
     taxableBalance: 300000,
