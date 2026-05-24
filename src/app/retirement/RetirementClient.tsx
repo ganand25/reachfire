@@ -65,6 +65,7 @@ export function RetirementClient(): React.JSX.Element {
     annualTraditionalContribution: 23500,
     annualRothContribution: 7000,
     annualTaxableContribution: 12000,
+    annualAdditionalIncome: 0,
     contributionOverrides: {},
     annualExpenses: 60000,
     growthRate: 0.07,
@@ -75,14 +76,14 @@ export function RetirementClient(): React.JSX.Element {
 
   const [selectedStrategy, setSelectedStrategy] = useState("tax-optimized");
   const [showTable, setShowTable] = useState(false);
-  const [showAccumulation, setShowAccumulation] = useState(false);
+  const [showAccumulation, setShowAccumulation] = useState(true);
   const [activeView, setActiveView] = useState<"balances" | "taxes">("balances");
 
   function update<K extends keyof RetirementInputs>(key: K, value: RetirementInputs[K]): void {
     setInputs((prev) => ({ ...prev, [key]: value }));
   }
 
-  function updateContributionOverride(age: number, field: "traditional" | "roth" | "taxable", value: number): void {
+  function updateContributionOverride(age: number, field: "traditional" | "roth" | "taxable" | "additionalIncome", value: number): void {
     setInputs((prev) => {
       const overrides = { ...prev.contributionOverrides };
       const existing = overrides[age] ?? {};
@@ -91,7 +92,7 @@ export function RetirementClient(): React.JSX.Element {
     });
   }
 
-  function resetContributionOverride(age: number, field: "traditional" | "roth" | "taxable"): void {
+  function resetContributionOverride(age: number, field: "traditional" | "roth" | "taxable" | "additionalIncome"): void {
     setInputs((prev) => {
       const overrides = { ...prev.contributionOverrides };
       if (overrides[age]) {
@@ -261,6 +262,12 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.annualTaxableContribution}
                 onChange={(v) => update("annualTaxableContribution", v)}
                 hint="No contribution limits"
+              />
+              <CurrencyInput
+                label="Additional Income (invested)"
+                value={inputs.annualAdditionalIncome}
+                onChange={(v) => update("annualAdditionalIncome", v)}
+                hint="Rental, side hustle, bonus — goes into taxable brokerage"
               />
               {selected.balanceAtRetirement.total > 0 && (
                 <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
@@ -614,6 +621,7 @@ export function RetirementClient(): React.JSX.Element {
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Contrib</th>
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Contrib</th>
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Contrib</th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Add&apos;l Income</th>
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Balance</th>
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Balance</th>
                         <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Balance</th>
@@ -649,6 +657,12 @@ export function RetirementClient(): React.JSX.Element {
                               isOverridden={hasOverride?.taxable !== undefined}
                               onChange={(v) => updateContributionOverride(y.age, "taxable", v)}
                               onReset={() => resetContributionOverride(y.age, "taxable")}
+                            />
+                            <EditableCell
+                              value={y.additionalIncome}
+                              isOverridden={hasOverride?.additionalIncome !== undefined}
+                              onChange={(v) => updateContributionOverride(y.age, "additionalIncome", v)}
+                              onReset={() => resetContributionOverride(y.age, "additionalIncome")}
                             />
                             <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.traditionalBalance)}</td>
                             <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.rothBalance)}</td>

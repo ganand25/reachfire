@@ -70,10 +70,11 @@ function simulateAccumulation(inputs: RetirementInputs): {
     const tradContrib = override?.traditional ?? inputs.annualTraditionalContribution;
     const rothContrib = override?.roth ?? inputs.annualRothContribution;
     const taxableContrib = override?.taxable ?? inputs.annualTaxableContribution;
+    const additionalIncome = override?.additionalIncome ?? inputs.annualAdditionalIncome;
 
     trad += tradContrib;
     roth += rothContrib;
-    taxable += taxableContrib;
+    taxable += taxableContrib + additionalIncome;
 
     years.push({
       age,
@@ -84,6 +85,7 @@ function simulateAccumulation(inputs: RetirementInputs): {
       traditionalContribution: tradContrib,
       rothContribution: rothContrib,
       taxableContribution: taxableContrib,
+      additionalIncome,
     });
 
     trad *= 1 + inputs.growthRate;
