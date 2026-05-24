@@ -20,7 +20,7 @@ import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
 import { cn } from "@/lib/utils";
 import type { RetirementInputs, TaxTip } from "@/types/retirement";
-import { runAllStrategies, generateTaxTips } from "@/services/withdrawal-optimizer";
+import { runAllStrategies, generateTaxTips, generateBestStrategyPlan } from "@/services/withdrawal-optimizer";
 import {
   Shield,
   TrendingDown,
@@ -33,6 +33,7 @@ import {
   Info,
   Gift,
   DollarSign,
+  Zap,
 } from "lucide-react";
 
 function formatMoney(v: number): string {
@@ -77,6 +78,7 @@ export function RetirementClient(): React.JSX.Element {
   const [selectedStrategy, setSelectedStrategy] = useState("tax-optimized");
   const [showTable, setShowTable] = useState(false);
   const [showAccumulation, setShowAccumulation] = useState(true);
+  const [showBestPlan, setShowBestPlan] = useState(false);
   const [activeView, setActiveView] = useState<"balances" | "taxes">("balances");
 
   function update<K extends keyof RetirementInputs>(key: K, value: RetirementInputs[K]): void {
@@ -110,6 +112,7 @@ export function RetirementClient(): React.JSX.Element {
 
   const strategies = useMemo(() => runAllStrategies(inputs), [inputs]);
   const tips = useMemo(() => generateTaxTips(inputs, strategies), [inputs, strategies]);
+  const bestPlan = useMemo(() => generateBestStrategyPlan(inputs, strategies), [inputs, strategies]);
 
   const selected = strategies.find((s) => s.id === selectedStrategy) ?? strategies[0];
   const conventional = strategies.find((s) => s.id === "conventional");
@@ -338,14 +341,14 @@ export function RetirementClient(): React.JSX.Element {
 
           {/* ── Results Panel ── */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Headline savings */}
+            {/* Headline savings + Best Strategy button */}
             {maxSavings > 0 && (
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
                 <div className="flex items-start gap-3">
                   <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
                     <TrendingDown className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-semibold text-lg">
                       Save up to{" "}
                       <span className="text-emerald-400">{formatMoney(maxSavings)}</span>{" "}
@@ -357,6 +360,123 @@ export function RetirementClient(): React.JSX.Element {
                       {formatMoney(worstStrategy.totalTaxes)} with the{" "}
                       {worstStrategy.name} approach.
                     </p>
+                    <button
+                      onClick={() => {
+                        setSelectedStrategy(bestPlan.strategyId);
+                        setShowBestPlan(true);
+                      }}
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg gradient-ember text-white font-semibold text-sm shadow-md hover:opacity-90 transition-opacity glow-ember-sm"
+                    >
+                      <Zap className="w-4 h-4" />
+                      Show Best Strategy Plan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Best Strategy Detailed Plan */}
+            {showBestPlan && (
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-5">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-semibold text-lg flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-primary" />
+                    Your Best Strategy: {bestPlan.strategyName}
+                  </h2>
+                  <button
+                    onClick={() => setShowBestPlan(false)}
+                    className="text-muted-foreground hover:text-foreground text-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="rounded-lg bg-card border border-border p-4">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{bestPlan.whyBest}</p>
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className="text-2xl font-bold text-emerald-400">{formatMoney(bestPlan.totalSavings)}</span>
+                    <span className="text-sm text-muted-foreground">saved vs worst strategy</span>
+                  </div>
+                </div>
+
+                {/* Phased Action Plan */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm">Action Plan by Phase</h3>
+                  {bestPlan.phases.map((phase) => (
+                    <div key={phase.title} className="rounded-lg border border-border bg-card p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold text-sm">{phase.title}</h4>
+                        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                          Ages {phase.ageRange}
+                        </span>
+                      </div>
+                      <ul className="space-y-1.5">
+                        {phase.actions.map((action, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                            <span>{action}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                {/* First 5 Years Breakdown */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-2">First 5 Years Breakdown</h3>
+                  <div className="rounded-lg border border-border bg-card overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/30">
+                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">Age</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Traditional</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Conversion</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Tax</th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Bracket</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bestPlan.firstFiveYears.map((y) => (
+                          <tr key={y.age} className="border-b border-border/50">
+                            <td className="px-3 py-1.5 font-medium">{y.age}</td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {y.traditionalWithdraw > 0 ? formatMoney(y.traditionalWithdraw) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {y.rothWithdraw > 0 ? formatMoney(y.rothWithdraw) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {y.taxableWithdraw > 0 ? formatMoney(y.taxableWithdraw) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums text-primary">
+                              {y.rothConversion > 0 ? formatMoney(y.rothConversion) : "—"}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums text-destructive">
+                              {formatMoney(y.tax)}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">{y.bracket}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* vs Other Strategies */}
+                <div>
+                  <h3 className="font-semibold text-sm mb-2">Savings vs Other Strategies</h3>
+                  <div className="space-y-2">
+                    {bestPlan.comparisonVsOthers.map((c) => (
+                      <div key={c.name} className="flex items-center justify-between text-sm rounded-lg border border-border bg-card px-4 py-2.5">
+                        <span className="text-muted-foreground">{c.name}</span>
+                        <span className="font-semibold text-emerald-400">
+                          +{formatMoney(c.yourSavings)} saved
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

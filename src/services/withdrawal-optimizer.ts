@@ -643,3 +643,175 @@ export function generateTaxTips(
     return order[a.priority] - order[b.priority];
   });
 }
+
+export interface BestStrategyPlan {
+  strategyId: string;
+  strategyName: string;
+  totalTaxes: number;
+  totalSavings: number;
+  whyBest: string;
+  phases: {
+    title: string;
+    ageRange: string;
+    actions: string[];
+  }[];
+  firstFiveYears: {
+    age: number;
+    traditionalWithdraw: number;
+    rothWithdraw: number;
+    taxableWithdraw: number;
+    rothConversion: number;
+    tax: number;
+    bracket: string;
+  }[];
+  comparisonVsOthers: {
+    name: string;
+    theirTaxes: number;
+    yourSavings: number;
+  }[];
+}
+
+export function generateBestStrategyPlan(
+  inputs: RetirementInputs,
+  strategies: StrategyResult[]
+): BestStrategyPlan {
+  const best = strategies.reduce((a, b) => (a.totalTaxes < b.totalTaxes ? a : b));
+  const worst = strategies.reduce((a, b) => (a.totalTaxes > b.totalTaxes ? a : b));
+  const deduction = STANDARD_DEDUCTION[inputs.filingStatus];
+  const brackets = TAX_BRACKETS[inputs.filingStatus];
+  const bracket12Top = (brackets[1]?.max ?? 48475) + deduction;
+
+  const whyReasons: string[] = [];
+  if (best.id === "tax-optimized") {
+    whyReasons.push(
+      "It keeps your Traditional withdrawals within the 12% bracket, avoiding the 22%+ jump.",
+      "It harvests long-term capital gains at the 0% rate while your income is low.",
+      "It converts excess Traditional to Roth, reducing future RMDs."
+    );
+  } else if (best.id === "roth-ladder") {
+    whyReasons.push(
+      "Your large Traditional balance benefits from aggressive early Roth conversions.",
+      "Living off taxable first preserves Roth's tax-free growth.",
+      "Converting at the 12% bracket now beats paying 22%+ on forced RMDs later."
+    );
+  } else if (best.id === "proportional") {
+    whyReasons.push(
+      "With your account mix, spreading withdrawals evenly keeps you in lower brackets.",
+      "No single account gets drained too fast, maintaining tax diversification."
+    );
+  } else {
+    whyReasons.push(
+      "With your specific balances, the conventional order happens to minimize total taxes.",
+      "This is uncommon — most people benefit from bracket-filling strategies."
+    );
+  }
+
+  const phases: BestStrategyPlan["phases"] = [];
+
+  if (inputs.retirementAge < 60) {
+    const earlyYears = best.years.filter((y) => y.age < 60);
+    const hasConversions = earlyYears.some((y) => y.rothConversion > 0);
+    const avgConversion = hasConversions
+      ? earlyYears.reduce((s, y) => s + y.rothConversion, 0) / earlyYears.length
+      : 0;
+    const actions: string[] = [];
+
+    if (earlyYears.some((y) => y.taxableWithdrawal > 0)) {
+      actions.push(`Withdraw living expenses from Taxable brokerage (tax-efficient — only gains are taxed)`);
+    }
+    if (earlyYears.some((y) => y.traditionalWithdrawal > 0)) {
+      actions.push(`Withdraw from Traditional up to ~$${Math.round(bracket12Top).toLocaleString()}/yr (stays in 12% bracket)`);
+    }
+    if (hasConversions) {
+      actions.push(`Convert ~$${Math.round(avgConversion).toLocaleString()}/yr from Traditional to Roth (filling low brackets)`);
+    }
+    actions.push("Keep Roth untouched — let it grow tax-free");
+
+    phases.push({
+      title: "Early Retirement",
+      ageRange: `${inputs.retirementAge}–59`,
+      actions,
+    });
+  }
+
+  const midYears = best.years.filter((y) => y.age >= 60 && y.age < 73);
+  if (midYears.length > 0) {
+    const actions: string[] = [];
+    const avgTrad = midYears.reduce((s, y) => s + y.traditionalWithdrawal, 0) / midYears.length;
+    const hasConversions = midYears.some((y) => y.rothConversion > 0);
+
+    if (avgTrad > 0) {
+      actions.push(`Withdraw ~$${Math.round(avgTrad).toLocaleString()}/yr from Traditional (within 12% bracket)`);
+    }
+    if (midYears.some((y) => y.taxableWithdrawal > 0)) {
+      actions.push("Sell taxable investments at 0% LTCG rate while income is low");
+    }
+    if (hasConversions) {
+      const avgConv = midYears.reduce((s, y) => s + y.rothConversion, 0) / midYears.length;
+      actions.push(`Continue Roth conversions (~$${Math.round(avgConv).toLocaleString()}/yr) before RMDs start at 73`);
+    }
+    if (midYears.some((y) => y.rothWithdrawal > 0)) {
+      actions.push("Use Roth as tax-free buffer for spending above the bracket ceiling");
+    }
+
+    phases.push({
+      title: "Pre-RMD Phase",
+      ageRange: `${Math.max(60, inputs.retirementAge)}–72`,
+      actions,
+    });
+  }
+
+  const rmdYears = best.years.filter((y) => y.age >= 73);
+  if (rmdYears.length > 0) {
+    const actions: string[] = [];
+    const avgRmd = rmdYears.reduce((s, y) => s + y.rmdRequired, 0) / rmdYears.length;
+
+    actions.push(`Take Required Minimum Distributions (~$${Math.round(avgRmd).toLocaleString()}/yr average)`);
+    if (rmdYears.some((y) => y.rothWithdrawal > 0)) {
+      actions.push("Supplement with tax-free Roth withdrawals to avoid bracket creep");
+    }
+    if (rmdYears.some((y) => y.taxableWithdrawal > 0)) {
+      actions.push("Use remaining taxable funds — stepped-up basis at death benefits heirs");
+    }
+    actions.push("Consider gifting $19K/person/yr to reduce taxable estate");
+
+    phases.push({
+      title: "RMD Phase",
+      ageRange: "73+",
+      actions,
+    });
+  }
+
+  const firstFiveYears = best.years.slice(0, 5).map((y) => {
+    const bracketPct = Math.round(y.marginalBracket * 100);
+    return {
+      age: y.age,
+      traditionalWithdraw: y.traditionalWithdrawal,
+      rothWithdraw: y.rothWithdrawal,
+      taxableWithdraw: y.taxableWithdrawal,
+      rothConversion: y.rothConversion,
+      tax: y.totalTax,
+      bracket: `${bracketPct}%`,
+    };
+  });
+
+  const comparisonVsOthers = strategies
+    .filter((s) => s.id !== best.id)
+    .map((s) => ({
+      name: s.name,
+      theirTaxes: s.totalTaxes,
+      yourSavings: s.totalTaxes - best.totalTaxes,
+    }))
+    .sort((a, b) => b.yourSavings - a.yourSavings);
+
+  return {
+    strategyId: best.id,
+    strategyName: best.name,
+    totalTaxes: best.totalTaxes,
+    totalSavings: worst.totalTaxes - best.totalTaxes,
+    whyBest: whyReasons.join(" "),
+    phases,
+    firstFiveYears,
+    comparisonVsOthers,
+  };
+}
