@@ -303,6 +303,7 @@ export function RetirementClient(): React.JSX.Element {
                 label="Annual Expenses (today's dollars)"
                 value={inputs.annualExpenses}
                 onChange={(v) => update("annualExpenses", v)}
+                hint={`At retirement (age ${inputs.retirementAge}): ${formatMoney(inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, inputs.retirementAge - inputs.currentAge))} in future dollars`}
               />
               <SliderInput
                 label="Growth Rate"

@@ -127,8 +127,8 @@ function simulateConventional(inputs: RetirementInputs, start: StartingBalances)
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
     const yr = makeEmptyYear(age);
-    const yearsFromRetirement = age - inputs.retirementAge;
-    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromRetirement);
+    const yearsFromNow = age - inputs.currentAge;
+    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromNow);
     yr.inflationAdjustedExpenses = expenses;
 
     const ss = age >= inputs.socialSecurityAge ? inputs.socialSecurityMonthly * 12 : 0;
@@ -209,8 +209,8 @@ function simulateTaxOptimized(inputs: RetirementInputs, start: StartingBalances)
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
     const yr = makeEmptyYear(age);
-    const yearsFromRetirement = age - inputs.retirementAge;
-    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromRetirement);
+    const yearsFromNow = age - inputs.currentAge;
+    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromNow);
     yr.inflationAdjustedExpenses = expenses;
 
     const ss = age >= inputs.socialSecurityAge ? inputs.socialSecurityMonthly * 12 : 0;
@@ -304,8 +304,8 @@ function simulateRothLadder(inputs: RetirementInputs, start: StartingBalances): 
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
     const yr = makeEmptyYear(age);
-    const yearsFromRetirement = age - inputs.retirementAge;
-    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromRetirement);
+    const yearsFromNow = age - inputs.currentAge;
+    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromNow);
     yr.inflationAdjustedExpenses = expenses;
 
     const ss = age >= inputs.socialSecurityAge ? inputs.socialSecurityMonthly * 12 : 0;
@@ -408,8 +408,8 @@ function simulateProportional(inputs: RetirementInputs, start: StartingBalances)
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
     const yr = makeEmptyYear(age);
-    const yearsFromRetirement = age - inputs.retirementAge;
-    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromRetirement);
+    const yearsFromNow = age - inputs.currentAge;
+    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromNow);
     yr.inflationAdjustedExpenses = expenses;
 
     const ss = age >= inputs.socialSecurityAge ? inputs.socialSecurityMonthly * 12 : 0;
