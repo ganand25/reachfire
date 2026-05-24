@@ -2,6 +2,7 @@ import type {
   RetirementInputs,
   YearResult,
   StrategyResult,
+  AccumulationYear,
   TaxTip,
 } from "@/types/retirement";
 import {
@@ -53,6 +54,41 @@ function growBalances(
   };
 }
 
+function simulateAccumulation(inputs: RetirementInputs): {
+  accumulation: AccumulationYear[];
+  trad: number;
+  roth: number;
+  taxable: number;
+} {
+  const years: AccumulationYear[] = [];
+  let trad = inputs.traditionalBalance;
+  let roth = inputs.rothBalance;
+  let taxable = inputs.taxableBalance;
+
+  for (let age = inputs.currentAge; age < inputs.retirementAge; age++) {
+    trad += inputs.annualTraditionalContribution;
+    roth += inputs.annualRothContribution;
+    taxable += inputs.annualTaxableContribution;
+
+    years.push({
+      age,
+      traditionalBalance: trad,
+      rothBalance: roth,
+      taxableBalance: taxable,
+      totalBalance: trad + roth + taxable,
+      traditionalContribution: inputs.annualTraditionalContribution,
+      rothContribution: inputs.annualRothContribution,
+      taxableContribution: inputs.annualTaxableContribution,
+    });
+
+    trad *= 1 + inputs.growthRate;
+    roth *= 1 + inputs.growthRate;
+    taxable *= 1 + inputs.growthRate;
+  }
+
+  return { accumulation: years, trad, roth, taxable };
+}
+
 function computeTaxes(
   ordinaryIncome: number,
   ltcgIncome: number,
@@ -68,12 +104,18 @@ function computeTaxes(
   return { federalTax, ltcgTax, totalTax: federalTax + ltcgTax };
 }
 
+interface StartingBalances {
+  trad: number;
+  roth: number;
+  taxable: number;
+}
+
 // Strategy 1: Conventional — Traditional first, then Taxable, then Roth
-function simulateConventional(inputs: RetirementInputs): YearResult[] {
+function simulateConventional(inputs: RetirementInputs, start: StartingBalances): YearResult[] {
   const years: YearResult[] = [];
-  let trad = inputs.traditionalBalance;
-  let roth = inputs.rothBalance;
-  let taxable = inputs.taxableBalance;
+  let trad = start.trad;
+  let roth = start.roth;
+  let taxable = start.taxable;
   let costBasisRatio = inputs.taxableCostBasisPercent / 100;
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
@@ -147,11 +189,11 @@ function simulateConventional(inputs: RetirementInputs): YearResult[] {
 }
 
 // Strategy 2: Tax-Bracket Optimized — Fill low brackets from Traditional, use 0% LTCG, Roth conversions
-function simulateTaxOptimized(inputs: RetirementInputs): YearResult[] {
+function simulateTaxOptimized(inputs: RetirementInputs, start: StartingBalances): YearResult[] {
   const years: YearResult[] = [];
-  let trad = inputs.traditionalBalance;
-  let roth = inputs.rothBalance;
-  let taxable = inputs.taxableBalance;
+  let trad = start.trad;
+  let roth = start.roth;
+  let taxable = start.taxable;
   let costBasisRatio = inputs.taxableCostBasisPercent / 100;
   const brackets = TAX_BRACKETS[inputs.filingStatus];
   const deduction = STANDARD_DEDUCTION[inputs.filingStatus];
@@ -243,11 +285,11 @@ function simulateTaxOptimized(inputs: RetirementInputs): YearResult[] {
 }
 
 // Strategy 3: Roth Conversion Ladder — Live off Taxable early, aggressively convert Traditional to Roth
-function simulateRothLadder(inputs: RetirementInputs): YearResult[] {
+function simulateRothLadder(inputs: RetirementInputs, start: StartingBalances): YearResult[] {
   const years: YearResult[] = [];
-  let trad = inputs.traditionalBalance;
-  let roth = inputs.rothBalance;
-  let taxable = inputs.taxableBalance;
+  let trad = start.trad;
+  let roth = start.roth;
+  let taxable = start.taxable;
   let costBasisRatio = inputs.taxableCostBasisPercent / 100;
   const deduction = STANDARD_DEDUCTION[inputs.filingStatus];
   const brackets = TAX_BRACKETS[inputs.filingStatus];
@@ -350,11 +392,11 @@ function simulateRothLadder(inputs: RetirementInputs): YearResult[] {
 }
 
 // Strategy 4: Proportional — Withdraw from all accounts proportionally
-function simulateProportional(inputs: RetirementInputs): YearResult[] {
+function simulateProportional(inputs: RetirementInputs, start: StartingBalances): YearResult[] {
   const years: YearResult[] = [];
-  let trad = inputs.traditionalBalance;
-  let roth = inputs.rothBalance;
-  let taxable = inputs.taxableBalance;
+  let trad = start.trad;
+  let roth = start.roth;
+  let taxable = start.taxable;
   let costBasisRatio = inputs.taxableCostBasisPercent / 100;
 
   for (let age = inputs.retirementAge; age <= inputs.lifeExpectancy; age++) {
@@ -443,7 +485,9 @@ function summarizeStrategy(
   id: string,
   name: string,
   description: string,
-  years: YearResult[]
+  years: YearResult[],
+  accumulation: AccumulationYear[],
+  balanceAtRetirement: StartingBalances
 ): StrategyResult {
   const totalTaxes = years.reduce((sum, y) => sum + y.totalTax, 0);
   const totalWithdrawals = years.reduce(
@@ -456,6 +500,13 @@ function summarizeStrategy(
     name,
     description,
     years,
+    accumulation,
+    balanceAtRetirement: {
+      traditional: balanceAtRetirement.trad,
+      roth: balanceAtRetirement.roth,
+      taxable: balanceAtRetirement.taxable,
+      total: balanceAtRetirement.trad + balanceAtRetirement.roth + balanceAtRetirement.taxable,
+    },
     totalTaxes,
     totalWithdrawals,
     effectiveLifetimeRate: totalWithdrawals > 0 ? totalTaxes / totalWithdrawals : 0,
@@ -464,30 +515,41 @@ function summarizeStrategy(
 }
 
 export function runAllStrategies(inputs: RetirementInputs): StrategyResult[] {
+  const { accumulation, trad, roth, taxable } = simulateAccumulation(inputs);
+  const start: StartingBalances = { trad, roth, taxable };
+
   return [
     summarizeStrategy(
       "conventional",
       "Conventional",
       "Traditional first, then Taxable, then Roth. Simple but typically highest taxes.",
-      simulateConventional(inputs)
+      simulateConventional(inputs, start),
+      accumulation,
+      start
     ),
     summarizeStrategy(
       "tax-optimized",
       "Tax-Bracket Optimized",
       "Fill the 12% bracket from Traditional, use 0% LTCG window, Roth conversions in remaining space.",
-      simulateTaxOptimized(inputs)
+      simulateTaxOptimized(inputs, start),
+      accumulation,
+      start
     ),
     summarizeStrategy(
       "roth-ladder",
       "Roth Conversion Ladder",
       "Live off Taxable early, aggressively convert Traditional to Roth at low brackets.",
-      simulateRothLadder(inputs)
+      simulateRothLadder(inputs, start),
+      accumulation,
+      start
     ),
     summarizeStrategy(
       "proportional",
       "Proportional",
       "Withdraw proportionally from all accounts each year.",
-      simulateProportional(inputs)
+      simulateProportional(inputs, start),
+      accumulation,
+      start
     ),
   ];
 }

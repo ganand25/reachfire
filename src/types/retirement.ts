@@ -9,6 +9,9 @@ export interface RetirementInputs {
   rothBalance: number;
   taxableBalance: number;
   taxableCostBasisPercent: number;
+  annualTraditionalContribution: number;
+  annualRothContribution: number;
+  annualTaxableContribution: number;
   annualExpenses: number;
   growthRate: number;
   inflationRate: number;
@@ -39,11 +42,29 @@ export interface YearResult {
   inflationAdjustedExpenses: number;
 }
 
+export interface AccumulationYear {
+  age: number;
+  traditionalBalance: number;
+  rothBalance: number;
+  taxableBalance: number;
+  totalBalance: number;
+  traditionalContribution: number;
+  rothContribution: number;
+  taxableContribution: number;
+}
+
 export interface StrategyResult {
   id: string;
   name: string;
   description: string;
   years: YearResult[];
+  accumulation: AccumulationYear[];
+  balanceAtRetirement: {
+    traditional: number;
+    roth: number;
+    taxable: number;
+    total: number;
+  };
   totalTaxes: number;
   totalWithdrawals: number;
   effectiveLifetimeRate: number;

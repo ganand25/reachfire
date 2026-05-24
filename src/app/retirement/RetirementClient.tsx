@@ -62,6 +62,9 @@ export function RetirementClient(): React.JSX.Element {
     rothBalance: 200000,
     taxableBalance: 300000,
     taxableCostBasisPercent: 60,
+    annualTraditionalContribution: 23500,
+    annualRothContribution: 7000,
+    annualTaxableContribution: 12000,
     annualExpenses: 60000,
     growthRate: 0.07,
     inflationRate: 0.03,
@@ -205,6 +208,55 @@ export function RetirementClient(): React.JSX.Element {
                 format="number"
                 hint="What % of your brokerage is original investment (not gains)"
               />
+            </div>
+
+            {/* Annual Contributions */}
+            <div className="rounded-xl border border-border bg-card p-5 space-y-4">
+              <h2 className="font-semibold text-sm flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-primary rotate-180" />
+                Annual Contributions
+              </h2>
+              <p className="text-xs text-muted-foreground">How much you add each year until retirement</p>
+              <CurrencyInput
+                label="Traditional 401k/IRA"
+                value={inputs.annualTraditionalContribution}
+                onChange={(v) => update("annualTraditionalContribution", v)}
+                hint="2025 limit: $23,500 (401k) + $7,000 (IRA)"
+              />
+              <CurrencyInput
+                label="Roth IRA/401k"
+                value={inputs.annualRothContribution}
+                onChange={(v) => update("annualRothContribution", v)}
+                hint="2025 limit: $7,000 (IRA) or $23,500 (Roth 401k)"
+              />
+              <CurrencyInput
+                label="Taxable Brokerage"
+                value={inputs.annualTaxableContribution}
+                onChange={(v) => update("annualTaxableContribution", v)}
+                hint="No contribution limits"
+              />
+              {selected.balanceAtRetirement.total > 0 && (
+                <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
+                  <p className="text-xs font-semibold text-foreground">Projected at retirement (age {inputs.retirementAge})</p>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">Traditional</p>
+                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.traditional)}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Roth</p>
+                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.roth)}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Taxable</p>
+                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.taxable)}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs font-bold text-primary tabular-nums">
+                    Total: {formatMoney(selected.balanceAtRetirement.total)}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Assumptions */}
