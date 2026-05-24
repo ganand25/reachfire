@@ -11,15 +11,16 @@ import { Logo } from "@/components/Logo";
 
 const NAV_LINKS = [
   { href: "/calculator", label: "Calculator" },
+  { href: "/retirement", label: "Tax Optimizer" },
   { href: "/scenarios", label: "Scenarios" },
   { href: "/withdrawal", label: "Withdrawal" },
   { href: "/coast", label: "Coast FIRE" },
   { href: "/roth-ladder", label: "Roth Ladder" },
   { href: "/geoarbitrage", label: "Geoarbitrage" },
-  { href: "/healthcare", label: "Healthcare" },
 ];
 
 const MORE_LINKS = [
+  { href: "/healthcare", label: "Healthcare" },
   { href: "/one-decision", label: "One Decision" },
   { href: "/savings-rate", label: "Savings Rate" },
   { href: "/growth", label: "Growth" },

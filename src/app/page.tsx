@@ -12,6 +12,7 @@ import {
   Zap,
   Building2,
   DollarSign,
+  PiggyBank,
 } from "lucide-react";
 import { LandingTeaser } from "./LandingTeaser";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/Animated";
@@ -23,6 +24,13 @@ const TOOLS = [
     title: "FIRE Calculator",
     description: "Monte Carlo simulations, live projections, and AI-powered insights.",
     badge: "Core Tool",
+  },
+  {
+    href: "/retirement",
+    icon: PiggyBank,
+    title: "Retirement Tax Optimizer",
+    description: "Compare withdrawal strategies to minimize lifetime taxes across all accounts.",
+    badge: "New",
   },
   {
     href: "/scenarios",
