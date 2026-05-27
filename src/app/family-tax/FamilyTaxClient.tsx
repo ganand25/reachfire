@@ -165,8 +165,6 @@ export function FamilyTaxClient(): React.JSX.Element {
           <ExportBar
             onExportCSV={handleExportCSV}
             onReset={clearInputs}
-            pdfElementId="family-tax-report"
-            pdfFilename="reachfire-family-tax-report"
             className="no-print shrink-0"
           />
         </div>

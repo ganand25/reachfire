@@ -222,8 +222,6 @@ export function RetirementClient(): React.JSX.Element {
           <ExportBar
             onExportCSV={handleExportCSV}
             onReset={clearInputs}
-            pdfElementId="retirement-report"
-            pdfFilename="reachfire-retirement-tax-report"
             className="no-print shrink-0"
           />
         </div>
