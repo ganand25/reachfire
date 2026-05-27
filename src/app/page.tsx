@@ -130,7 +130,7 @@ export default function HomePage(): React.JSX.Element {
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20"
             style={{
-              background: 'radial-gradient(ellipse, oklch(0.70 0.24 50) 0%, transparent 70%)',
+              background: 'radial-gradient(ellipse, oklch(0.78 0.14 80) 0%, transparent 70%)',
             }}
           />
         </div>

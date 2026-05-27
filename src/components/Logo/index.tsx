@@ -26,8 +26,8 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps): Re
       >
         <defs>
           <linearGradient id="reachfire-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="oklch(0.62 0.26 35)" />
-            <stop offset="50%" stopColor="oklch(0.70 0.24 50)" />
+            <stop offset="0%" stopColor="oklch(0.58 0.16 55)" />
+            <stop offset="50%" stopColor="oklch(0.72 0.15 75)" />
             <stop offset="100%" stopColor="oklch(0.78 0.18 75)" />
           </linearGradient>
         </defs>
@@ -51,7 +51,7 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps): Re
         {/* Inner flame highlight */}
         <path
           d="M 20 10 C 20 10 17 14 17 17 C 17 20 18.3 22 20 22 C 21.7 22 23 20 23 17 C 23 14 20 10 20 10 Z"
-          fill="oklch(0.85 0.18 75)"
+          fill="oklch(0.88 0.12 85)"
           opacity="0.6"
         />
 
@@ -101,8 +101,8 @@ export function LogoSymbol({
     >
       <defs>
         <linearGradient id="reachfire-gradient-symbol" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="oklch(0.62 0.26 35)" />
-          <stop offset="50%" stopColor="oklch(0.70 0.24 50)" />
+          <stop offset="0%" stopColor="oklch(0.58 0.16 55)" />
+          <stop offset="50%" stopColor="oklch(0.72 0.15 75)" />
           <stop offset="100%" stopColor="oklch(0.78 0.18 75)" />
         </linearGradient>
       </defs>
@@ -126,7 +126,7 @@ export function LogoSymbol({
       {/* Inner flame highlight */}
       <path
         d="M 20 10 C 20 10 17 14 17 17 C 17 20 18.3 22 20 22 C 21.7 22 23 20 23 17 C 23 14 20 10 20 10 Z"
-        fill="oklch(0.85 0.18 75)"
+        fill="oklch(0.88 0.12 85)"
         opacity="0.6"
       />
 

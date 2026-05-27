@@ -97,7 +97,7 @@ export function SliderInput({
           border-radius: 50%;
           background: var(--primary);
           cursor: pointer;
-          box-shadow: 0 0 8px oklch(0.7 0.24 50 / 0.4);
+          box-shadow: 0 0 8px oklch(0.78 0.14 80 / 0.4);
           border: 2px solid var(--background);
           transition:
             transform 0.1s,
@@ -105,7 +105,7 @@ export function SliderInput({
         }
         input[type='range']::-webkit-slider-thumb:hover {
           transform: scale(1.2);
-          box-shadow: 0 0 12px oklch(0.7 0.24 50 / 0.6);
+          box-shadow: 0 0 12px oklch(0.78 0.14 80 / 0.6);
         }
         input[type='range']::-moz-range-thumb {
           width: 18px;
