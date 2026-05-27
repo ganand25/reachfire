@@ -1,5 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
+import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import {
@@ -225,6 +227,8 @@ export function SavingsRateClient(): React.JSX.Element {
         })}
       </div>
     </div>
+    <NextSteps currentPath="/savings-rate" />
+    <DisclaimerBanner />
     </PageEnter>
   );
 }

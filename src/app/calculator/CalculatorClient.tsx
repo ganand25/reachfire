@@ -9,6 +9,7 @@ import { useFireCalculator } from "@/hooks/useFireCalculator";
 import { decodeShareParams } from "@/components/ShareButton";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 import { SliderInput } from "@/components/SliderInput";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { StatCard } from "@/components/StatCard";
@@ -469,6 +470,7 @@ export function CalculatorClient(): React.JSX.Element {
             </div>
 
             {/* Disclaimer */}
+            <NextSteps currentPath="/calculator" />
             <DisclaimerBanner />
           </div>
         </div>

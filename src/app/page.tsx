@@ -156,19 +156,19 @@ export default function HomePage(): React.JSX.Element {
 
           <FadeUp delay={0.16}>
             <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
-              The most comprehensive free FIRE planning platform. Monte Carlo simulations,
-              Roth ladder planning, geoarbitrage explorer, and AI insights — all in your browser.
+              Answer a few questions and we&apos;ll show you exactly where you stand — and how to get to
+              financial independence faster. No account needed. Your data never leaves your browser.
             </p>
           </FadeUp>
 
           <FadeUp delay={0.22}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-12 sm:mb-16">
               <Link
-                href="/calculator"
+                href="/plan"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl gradient-ember text-white font-semibold shadow-lg hover:opacity-90 transition-opacity glow-ember-sm"
               >
                 <Flame className="w-5 h-5" />
-                Start Planning — It&apos;s Free
+                Find Your Path — It&apos;s Free
               </Link>
               <Link
                 href="/about"
@@ -182,6 +182,33 @@ export default function HomePage(): React.JSX.Element {
           {/* Interactive teaser */}
           <FadeUp delay={0.28}>
             <LandingTeaser />
+          </FadeUp>
+
+          {/* Goal quick-links */}
+          <FadeUp delay={0.36}>
+            <div className="mt-10 sm:mt-12">
+              <p className="text-center text-xs text-muted-foreground mb-4 font-medium uppercase tracking-wider">
+                Or jump straight to what you need
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 max-w-3xl mx-auto">
+                {[
+                  { href: "/plan?goal=when-retire", label: "When can I retire?", emoji: "📅" },
+                  { href: "/plan?goal=reduce-taxes", label: "Reduce my taxes", emoji: "🧾" },
+                  { href: "/plan?goal=on-track", label: "Am I on track?", emoji: "🎯" },
+                  { href: "/plan?goal=where-retire", label: "Where to retire?", emoji: "🌍" },
+                  { href: "/plan?goal=withdraw-money", label: "How to withdraw?", emoji: "💰" },
+                ].map((goal) => (
+                  <Link
+                    key={goal.href}
+                    href={goal.href}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-border bg-card/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-card transition-all"
+                  >
+                    <span>{goal.emoji}</span>
+                    <span>{goal.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </FadeUp>
         </div>
       </section>
@@ -283,10 +310,10 @@ export default function HomePage(): React.JSX.Element {
               Built by the FIRE community, for the FIRE community.
             </p>
             <Link
-              href="/calculator"
+              href="/plan"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl gradient-ember text-white font-medium hover:opacity-90 transition-opacity"
             >
-              Calculate my FIRE number
+              Start Your Plan
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

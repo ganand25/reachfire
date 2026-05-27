@@ -1,6 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useState, useMemo, useCallback } from "react";
 import {
@@ -377,6 +378,7 @@ export function SocialSecurityClient(): React.JSX.Element {
           </div>
         </div>
       </div>
+      <NextSteps currentPath="/social-security" />
       <DisclaimerBanner context="social security" />
     </div>
     </PageEnter>

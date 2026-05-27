@@ -1,6 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
@@ -310,6 +311,7 @@ export function DebtClient(): React.JSX.Element {
           )}
         </div>
       </div>
+      <NextSteps currentPath="/debt" />
       <DisclaimerBanner context="debt" />
     </div>
     </PageEnter>

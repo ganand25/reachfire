@@ -1,6 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import { CurrencyInput } from "@/components/CurrencyInput";
@@ -222,6 +223,7 @@ export function RothLadderClient(): React.JSX.Element {
           </div>
         </div>
       </div>
+      <NextSteps currentPath="/roth-ladder" />
       <DisclaimerBanner context="tax" />
     </div>
     </PageEnter>

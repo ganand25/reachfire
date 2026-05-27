@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
@@ -439,6 +440,7 @@ export function FamilyTaxClient(): React.JSX.Element {
               </Link>
             </div>
 
+            <NextSteps currentPath="/family-tax" />
             <DisclaimerBanner />
           </div>
         </div>

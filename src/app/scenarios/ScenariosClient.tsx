@@ -1,5 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
+import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -258,6 +260,8 @@ export function ScenariosClient(): React.JSX.Element {
         </div>
       </div>
     </div>
+    <NextSteps currentPath="/scenarios" />
+    <DisclaimerBanner />
     </PageEnter>
   );
 }

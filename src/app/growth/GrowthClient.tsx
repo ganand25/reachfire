@@ -1,5 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
+import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import {
@@ -156,6 +158,8 @@ export function GrowthClient(): React.JSX.Element {
         </div>
       </div>
     </div>
+    <NextSteps currentPath="/growth" />
+    <DisclaimerBanner />
     </PageEnter>
   );
 }

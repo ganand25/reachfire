@@ -1,6 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -174,6 +175,7 @@ export function HealthcareClient(): React.JSX.Element {
           </div>
         </div>
       </div>
+      <NextSteps currentPath="/healthcare" />
       <DisclaimerBanner context="healthcare" />
     </div>
     </PageEnter>

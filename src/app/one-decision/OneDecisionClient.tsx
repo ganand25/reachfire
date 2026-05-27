@@ -1,5 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
+import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useState, useMemo, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -217,6 +219,8 @@ export function OneDecisionClient(): React.JSX.Element {
         </div>
       </div>
     </div>
+    <NextSteps currentPath="/one-decision" />
+    <DisclaimerBanner />
     </PageEnter>
   );
 }

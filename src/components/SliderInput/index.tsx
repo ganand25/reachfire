@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface SliderInputProps {
-  label: string;
+  label: React.ReactNode;
   value: number;
   min: number;
   max: number;

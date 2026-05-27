@@ -138,7 +138,7 @@ export function Navbar(): React.JSX.Element {
               {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <Link
-              href="/calculator"
+              href="/plan"
               className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium gradient-ember text-white shadow-sm hover:opacity-90 transition-opacity"
             >
               Start Planning
@@ -182,7 +182,7 @@ export function Navbar(): React.JSX.Element {
             </nav>
             <div className="px-4 pb-4">
               <Link
-                href="/calculator"
+                href="/plan"
                 className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg gradient-ember text-white font-medium text-sm"
               >
                 <Flame className="w-4 h-4" />

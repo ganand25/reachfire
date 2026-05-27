@@ -48,7 +48,7 @@ export function LandingTeaser(): React.JSX.Element {
           onChange={(e) => setSavingsRate(Number(e.target.value))}
           className="w-full h-2 rounded-full appearance-none cursor-pointer"
           style={{
-            background: `linear-gradient(to right, oklch(0.62 0.26 35) 0%, oklch(0.70 0.24 50) ${((savingsRate - 5) / 85) * 50}%, oklch(0.82 0.18 75) ${((savingsRate - 5) / 85) * 100}%, var(--border) ${((savingsRate - 5) / 85) * 100}%)`,
+            background: `linear-gradient(to right, var(--ember-1) 0%, var(--ember-2) ${((savingsRate - 5) / 85) * 50}%, var(--ember-3) ${((savingsRate - 5) / 85) * 100}%, var(--border) ${((savingsRate - 5) / 85) * 100}%)`,
           }}
         />
         <div className="flex justify-between text-xs text-muted-foreground">

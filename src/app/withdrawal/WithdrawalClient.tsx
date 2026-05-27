@@ -1,6 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
+import { NextSteps } from "@/components/NextSteps";
 
 import { useState, useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from "recharts";
@@ -213,6 +214,7 @@ export function WithdrawalClient(): React.JSX.Element {
           </div>
         </div>
       </div>
+      <NextSteps currentPath="/withdrawal" />
       <DisclaimerBanner context="withdrawal" />
     </div>
     </PageEnter>
