@@ -2,11 +2,14 @@
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from "recharts";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { fixedWithdrawal, historicalSuccessRate } from "@/lib/calculations/withdrawal";
 import { cn } from "@/lib/utils";
 
@@ -16,11 +19,30 @@ const STRATEGIES = [
   { id: "guardrails", label: "Guardrails (4.5%)", rate: 0.045, description: "Higher base rate with spending guardrails" },
 ];
 
+interface WithdrawalInputs {
+  portfolio: number;
+  annualSpending: number;
+  duration: number;
+  returnRate: number;
+}
+
+const DEFAULT_INPUTS: WithdrawalInputs = {
+  portfolio: 1000000,
+  annualSpending: 40000,
+  duration: 30,
+  returnRate: 0.07,
+};
+
 export function WithdrawalClient(): React.JSX.Element {
-  const [portfolio, setPortfolio] = useState(1000000);
-  const [annualSpending, setAnnualSpending] = useState(40000);
-  const [duration, setDuration] = useState(30);
-  const [returnRate, setReturnRate] = useState(0.07);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<WithdrawalInputs>(
+    "reachfire:withdrawal",
+    DEFAULT_INPUTS
+  );
+  const { portfolio, annualSpending, duration, returnRate } = inputs;
+  const setPortfolio = (v: number): void => setInputs((prev) => ({ ...prev, portfolio: v }));
+  const setAnnualSpending = (v: number): void => setInputs((prev) => ({ ...prev, annualSpending: v }));
+  const setDuration = (v: number): void => setInputs((prev) => ({ ...prev, duration: v }));
+  const setReturnRate = (v: number): void => setInputs((prev) => ({ ...prev, returnRate: v }));
   const [selectedStrategy, setSelectedStrategy] = useState("four_percent");
 
   const strategy = STRATEGIES.find((s) => s.id === selectedStrategy) ?? STRATEGIES[0];
@@ -50,6 +72,16 @@ export function WithdrawalClient(): React.JSX.Element {
     return `$${v}`;
   }
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "End Balance", "Inflation-Adj Withdrawal"];
+    const rows = projection.map((y) => [
+      y.year,
+      Math.round(y.endBalance),
+      Math.round(y.inflationAdjustedWithdrawal),
+    ]);
+    downloadCSV("reachfire-withdrawal", headers, rows);
+  }, [projection]);
+
   const successColor =
     historicalRate >= 90 ? "text-emerald-400" : historicalRate >= 70 ? "text-amber-400" : "text-destructive";
 
@@ -61,6 +93,11 @@ export function WithdrawalClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           Test different withdrawal strategies against historical market data spanning 100 years.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

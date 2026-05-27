@@ -193,3 +193,50 @@
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.70 0.24 50 / 0.6);
 }
+
+/* Print styles for PDF export */
+@media print {
+  header, footer, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11px !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  .rounded-xl, .rounded-lg {
+    border-radius: 4px !important;
+  }
+  .gradient-ember, .glow-ember, .glow-ember-sm {
+    background: #555 !important;
+    box-shadow: none !important;
+  }
+  table {
+    font-size: 10px !important;
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+  }
+  .border-border {
+    border-color: #ddd !important;
+  }
+  .bg-card, .bg-card\/30, .bg-muted\/30, .bg-muted\/50 {
+    background: white !important;
+  }
+  .text-muted-foreground {
+    color: #666 !important;
+  }
+  .text-primary {
+    color: #c44 !important;
+  }
+  .text-emerald-400 {
+    color: #059669 !important;
+  }
+  .text-destructive {
+    color: #c44 !important;
+  }
+}

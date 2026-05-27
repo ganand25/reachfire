@@ -2,26 +2,47 @@
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { avalanchePayoff, snowballPayoff, debtToInvestmentRedirect, totalDebtSummary } from "@/lib/calculations/debt";
 import type { DebtItem } from "@/types/fire";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_DEBTS: DebtItem[] = [
-  { id: "1", name: "Student Loan", balance: 25000, interestRate: 0.065, minimumPayment: 280 },
-  { id: "2", name: "Car Loan", balance: 15000, interestRate: 0.055, minimumPayment: 290 },
-  { id: "3", name: "Credit Card", balance: 5000, interestRate: 0.22, minimumPayment: 150 },
-];
+interface DebtInputs {
+  debts: DebtItem[];
+  strategy: "avalanche" | "snowball";
+  investmentReturn: number;
+  investmentYears: number;
+}
+
+const DEFAULT_INPUTS: DebtInputs = {
+  debts: [
+    { id: "1", name: "Student Loan", balance: 25000, interestRate: 0.065, minimumPayment: 280 },
+    { id: "2", name: "Car Loan", balance: 15000, interestRate: 0.055, minimumPayment: 290 },
+    { id: "3", name: "Credit Card", balance: 5000, interestRate: 0.22, minimumPayment: 150 },
+  ],
+  strategy: "avalanche",
+  investmentReturn: 0.07,
+  investmentYears: 20,
+};
 
 export function DebtClient(): React.JSX.Element {
-  const [debts, setDebts] = useState<DebtItem[]>(DEFAULT_DEBTS);
-  const [strategy, setStrategy] = useState<"avalanche" | "snowball">("avalanche");
-  const [investmentReturn, setInvestmentReturn] = useState(0.07);
-  const [investmentYears, setInvestmentYears] = useState(20);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<DebtInputs>(
+    "reachfire:debt",
+    DEFAULT_INPUTS
+  );
+  const { debts, strategy, investmentReturn, investmentYears } = inputs;
+  const setDebts = (fn: DebtItem[] | ((prev: DebtItem[]) => DebtItem[])): void =>
+    setInputs((prev) => ({ ...prev, debts: fn instanceof Function ? fn(prev.debts) : fn }));
+  const setStrategy = (v: "avalanche" | "snowball"): void => setInputs((prev) => ({ ...prev, strategy: v }));
+  const setInvestmentReturn = (v: number): void => setInputs((prev) => ({ ...prev, investmentReturn: v }));
+  const setInvestmentYears = (v: number): void => setInputs((prev) => ({ ...prev, investmentYears: v }));
 
   const addDebt = (): void => {
     const newDebt: DebtItem = {
@@ -72,6 +93,12 @@ export function DebtClient(): React.JSX.Element {
     return yearly;
   }, [selected]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "Balance"];
+    const rows = chartData.map((d) => [d.year, d.balance]);
+    downloadCSV("reachfire-debt", headers, rows);
+  }, [chartData]);
+
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
     if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -86,6 +113,11 @@ export function DebtClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           Destroy debt strategically, then redirect every freed-up dollar into investments. See the explosive effect on your FIRE timeline.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

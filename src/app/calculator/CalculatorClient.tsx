@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import { ExportBar } from "@/components/ExportBar";
+import { downloadCSV } from "@/lib/csv";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown, ChevronUp, Play, Shield } from "lucide-react";
 import { useFireCalculator } from "@/hooks/useFireCalculator";
@@ -48,8 +50,8 @@ export function CalculatorClient(): React.JSX.Element {
     };
   }, [searchParams]);
 
-  const { inputs, result, monteCarloResult, setInput, runMonteCarloSim, isRunningMonteCarlo } =
-    useFireCalculator(initialInputs);
+  const { inputs, result, monteCarloResult, setInput, runMonteCarloSim, isRunningMonteCarlo, clearInputs } =
+    useFireCalculator({ initialInputs, storageKey: "reachfire:calculator" });
   const [inputsPanelOpen, setInputsPanelOpen] = useState(true);
   const [showInflationAdj, setShowInflationAdj] = useState(false);
 
@@ -72,6 +74,19 @@ export function CalculatorClient(): React.JSX.Element {
     progressToFireNumber: progress / 100,
     diversified: true,
   });
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "Age", "Portfolio Value", "Contributions", "Growth", "Inflation-Adjusted"];
+    const rows = result.projections.map((p) => [
+      p.year,
+      p.age,
+      Math.round(p.portfolioValue),
+      Math.round(p.contributions),
+      Math.round(p.growthAmount),
+      Math.round(p.inflationAdjusted),
+    ]);
+    downloadCSV("reachfire-calculator", headers, rows);
+  }, [result.projections]);
 
   const handleStrategyChange = useCallback(
     (strategy: string) => {
@@ -142,6 +157,11 @@ export function CalculatorClient(): React.JSX.Element {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <ExportBar
+                onExportCSV={handleExportCSV}
+                onReset={clearInputs}
+                className="no-print"
+              />
               <div className="flex items-center gap-1.5 text-xs text-emerald-400">
                 <Shield className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Private — data stays in your browser</span>

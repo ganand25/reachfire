@@ -1,10 +1,13 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Check } from "lucide-react";
 import { CurrencyInput } from "@/components/CurrencyInput";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { PRESET_DECISIONS, analyzeDecision, combinedDecisionImpact } from "@/lib/calculations/decisions";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +20,29 @@ const CATEGORY_COLORS: Record<string, string> = {
   investing: "text-amber-400",
 };
 
+interface OneDecisionInputs {
+  currentPortfolio: number;
+  currentMonthlySavings: number;
+  annualExpenses: number;
+  returnRate: number;
+}
+
+const DEFAULT_INPUTS: OneDecisionInputs = {
+  currentPortfolio: 100000,
+  currentMonthlySavings: 2000,
+  annualExpenses: 60000,
+  returnRate: 0.07,
+};
+
 export function OneDecisionClient(): React.JSX.Element {
-  const [currentPortfolio, setCurrentPortfolio] = useState(100000);
-  const [currentMonthlySavings, setCurrentMonthlySavings] = useState(2000);
-  const [annualExpenses, setAnnualExpenses] = useState(60000);
-  const [returnRate] = useState(0.07);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<OneDecisionInputs>(
+    "reachfire:one-decision",
+    DEFAULT_INPUTS
+  );
+  const { currentPortfolio, currentMonthlySavings, annualExpenses, returnRate } = inputs;
+  const setCurrentPortfolio = (v: number): void => setInputs((prev) => ({ ...prev, currentPortfolio: v }));
+  const setCurrentMonthlySavings = (v: number): void => setInputs((prev) => ({ ...prev, currentMonthlySavings: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
   const [selectedDecisions, setSelectedDecisions] = useState<Set<string>>(new Set(["coffee"]));
 
   const toggleDecision = (id: string): void => {
@@ -64,6 +85,19 @@ export function OneDecisionClient(): React.JSX.Element {
       ]
     : [];
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Decision", "Monthly Savings", "5yr Value", "10yr Value", "20yr Value", "Months Earlier"];
+    const rows = impacts.map((i) => [
+      i.decision.label,
+      i.decision.monthlySavings,
+      Math.round(i.year5Value),
+      Math.round(i.year10Value),
+      Math.round(i.year20Value),
+      i.monthsEarlierToFire,
+    ]);
+    downloadCSV("reachfire-one-decision", headers, rows);
+  }, [impacts]);
+
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
     if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -79,6 +113,11 @@ export function OneDecisionClient(): React.JSX.Element {
           $5/day feels like nothing. But it&apos;s $56,000 in 20 years at 7% returns — and 8 months of your life back.
           See the insane compound impact of a single lifestyle change.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

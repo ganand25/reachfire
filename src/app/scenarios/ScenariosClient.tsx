@@ -1,12 +1,15 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { ComparisonBar } from "@/components/ComparisonBar";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { fireNumber, yearsToFire } from "@/lib/calculations/core";
 import { cn } from "@/lib/utils";
 
@@ -74,11 +77,30 @@ const SCENARIOS: ScenarioDefinition[] = [
   },
 ];
 
+interface ScenariosInputs {
+  annualExpenses: number;
+  currentPortfolio: number;
+  monthlySavings: number;
+  returnRate: number;
+}
+
+const DEFAULT_INPUTS: ScenariosInputs = {
+  annualExpenses: 60000,
+  currentPortfolio: 50000,
+  monthlySavings: 2000,
+  returnRate: 0.07,
+};
+
 export function ScenariosClient(): React.JSX.Element {
-  const [annualExpenses, setAnnualExpenses] = useState(60000);
-  const [currentPortfolio, setCurrentPortfolio] = useState(50000);
-  const [monthlySavings, setMonthlySavings] = useState(2000);
-  const [returnRate, setReturnRate] = useState(0.07);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<ScenariosInputs>(
+    "reachfire:scenarios",
+    DEFAULT_INPUTS
+  );
+  const { annualExpenses, currentPortfolio, monthlySavings, returnRate } = inputs;
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
+  const setCurrentPortfolio = (v: number): void => setInputs((prev) => ({ ...prev, currentPortfolio: v }));
+  const setMonthlySavings = (v: number): void => setInputs((prev) => ({ ...prev, monthlySavings: v }));
+  const setReturnRate = (v: number): void => setInputs((prev) => ({ ...prev, returnRate: v }));
 
   const scenarios = useMemo(() => {
     return SCENARIOS.map((s) => {
@@ -97,6 +119,18 @@ export function ScenariosClient(): React.JSX.Element {
     });
   }, [annualExpenses, currentPortfolio, monthlySavings, returnRate]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Scenario", "Adjusted Expenses", "FIRE Number", "Years to FIRE", "Progress %"];
+    const rows = scenarios.map((s) => [
+      s.name,
+      Math.round(s.adjustedExpenses),
+      Math.round(s.fireNumber),
+      s.yearsToFire === Infinity ? "Infinity" : s.yearsToFire.toFixed(1),
+      s.progress.toFixed(1),
+    ]);
+    downloadCSV("reachfire-scenarios", headers, rows);
+  }, [scenarios]);
+
   return (
     <PageEnter>
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
@@ -105,6 +139,11 @@ export function ScenariosClient(): React.JSX.Element {
         <p className="text-muted-foreground">
           Compare all FIRE types side by side with your real numbers.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       {/* Inputs */}

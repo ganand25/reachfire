@@ -18,6 +18,9 @@ import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { cn } from "@/lib/utils";
 import type { RetirementInputs, TaxTip } from "@/types/retirement";
 import { runAllStrategies, generateTaxTips, generateBestStrategyPlan } from "@/services/withdrawal-optimizer";
@@ -53,27 +56,32 @@ const STRATEGY_DESCRIPTIONS: Record<string, string> = {
   proportional: "Simple but suboptimal — ignores bracket optimization entirely.",
 };
 
+const DEFAULT_INPUTS: RetirementInputs = {
+  currentAge: 50,
+  retirementAge: 60,
+  lifeExpectancy: 85,
+  filingStatus: "married",
+  traditionalBalance: 500000,
+  rothBalance: 200000,
+  taxableBalance: 300000,
+  taxableCostBasisPercent: 60,
+  annualTraditionalContribution: 23500,
+  annualRothContribution: 7000,
+  annualTaxableContribution: 12000,
+  annualAdditionalIncome: 0,
+  contributionOverrides: {},
+  annualExpenses: 60000,
+  growthRate: 0.07,
+  inflationRate: 0.03,
+  socialSecurityMonthly: 2000,
+  socialSecurityAge: 67,
+};
+
 export function RetirementClient(): React.JSX.Element {
-  const [inputs, setInputs] = useState<RetirementInputs>({
-    currentAge: 50,
-    retirementAge: 60,
-    lifeExpectancy: 85,
-    filingStatus: "married",
-    traditionalBalance: 500000,
-    rothBalance: 200000,
-    taxableBalance: 300000,
-    taxableCostBasisPercent: 60,
-    annualTraditionalContribution: 23500,
-    annualRothContribution: 7000,
-    annualTaxableContribution: 12000,
-    annualAdditionalIncome: 0,
-    contributionOverrides: {},
-    annualExpenses: 60000,
-    growthRate: 0.07,
-    inflationRate: 0.03,
-    socialSecurityMonthly: 2000,
-    socialSecurityAge: 67,
-  });
+  const [inputs, setInputs, clearInputs] = useLocalStorage<RetirementInputs>(
+    "reachfire:retirement",
+    DEFAULT_INPUTS
+  );
 
   const [selectedStrategy, setSelectedStrategy] = useState("tax-optimized");
   const [showTable, setShowTable] = useState(false);
@@ -139,17 +147,51 @@ export function RetirementClient(): React.JSX.Element {
     "LTCG Tax": Math.round(y.ltcgTax),
   }));
 
+  function handleExportCSV(): void {
+    const headers = [
+      "Age", "Traditional W/D", "Roth W/D", "Taxable W/D",
+      "Roth Conversion", "Social Security", "Federal Tax", "LTCG Tax",
+      "Total Tax", "Effective Rate", "Net Spending",
+      "Traditional Bal", "Roth Bal", "Taxable Bal", "Total Bal",
+    ];
+    const rows = selected.years.map((y) => [
+      y.age,
+      Math.round(y.traditionalWithdrawal),
+      Math.round(y.rothWithdrawal),
+      Math.round(y.taxableWithdrawal),
+      Math.round(y.rothConversion),
+      Math.round(y.socialSecurityIncome),
+      Math.round(y.federalTax),
+      Math.round(y.ltcgTax),
+      Math.round(y.totalTax),
+      `${(y.effectiveRate * 100).toFixed(1)}%`,
+      Math.round(y.netSpending),
+      Math.round(y.traditionalBalance),
+      Math.round(y.rothBalance),
+      Math.round(y.taxableBalance),
+      Math.round(y.totalBalance),
+    ]);
+    downloadCSV(`reachfire-retirement-${selected.id}`, headers, rows);
+  }
+
   return (
     <PageEnter>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
-        <div className="mb-8">
-          <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
-            Retirement Tax Optimizer
-          </h1>
-          <p className="text-muted-foreground max-w-2xl">
-            Compare withdrawal strategies to minimize lifetime taxes. See exactly how much you save
-            by withdrawing from the right accounts in the right order.
-          </p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
+              Retirement Tax Optimizer
+            </h1>
+            <p className="text-muted-foreground max-w-2xl">
+              Compare withdrawal strategies to minimize lifetime taxes. See exactly how much you save
+              by withdrawing from the right accounts in the right order.
+            </p>
+          </div>
+          <ExportBar
+            onExportCSV={handleExportCSV}
+            onReset={clearInputs}
+            className="no-print shrink-0"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

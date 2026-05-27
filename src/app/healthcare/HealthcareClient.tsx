@@ -2,19 +2,41 @@
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { lifetimeHealthcareCost } from "@/lib/calculations/healthcare";
 import { medicalTourismData } from "@/lib/data/medicalTourism";
 
+interface HealthcareInputs {
+  retirementAge: number;
+  currentAge: number;
+  annualIncome: number;
+  familySize: number;
+}
+
+const DEFAULT_INPUTS: HealthcareInputs = {
+  retirementAge: 45,
+  currentAge: 35,
+  annualIncome: 50000,
+  familySize: 1,
+};
+
 export function HealthcareClient(): React.JSX.Element {
-  const [retirementAge, setRetirementAge] = useState(45);
-  const [currentAge, setCurrentAge] = useState(35);
-  const [annualIncome, setAnnualIncome] = useState(50000);
-  const [familySize, setFamilySize] = useState(1);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<HealthcareInputs>(
+    "reachfire:healthcare",
+    DEFAULT_INPUTS
+  );
+  const { retirementAge, currentAge, annualIncome, familySize } = inputs;
+  const setRetirementAge = (v: number): void => setInputs((prev) => ({ ...prev, retirementAge: v }));
+  const setCurrentAge = (v: number): void => setInputs((prev) => ({ ...prev, currentAge: v }));
+  const setAnnualIncome = (v: number): void => setInputs((prev) => ({ ...prev, annualIncome: v }));
+  const setFamilySize = (v: number): void => setInputs((prev) => ({ ...prev, familySize: v }));
 
   const projection = useMemo(
     () => lifetimeHealthcareCost(currentAge, retirementAge, 90, annualIncome, familySize, 0.055, "national"),
@@ -35,6 +57,12 @@ export function HealthcareClient(): React.JSX.Element {
     type: y.isMedicare ? "Medicare" : "ACA",
   }));
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Age", "Premium", "Out-of-Pocket", "Total", "Type"];
+    const rows = chartData.map((d) => [d.age, d.premium, d.oop, d.total, d.type]);
+    downloadCSV("reachfire-healthcare", headers, rows);
+  }, [chartData]);
+
   return (
     <PageEnter>
       <div className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
@@ -43,6 +71,11 @@ export function HealthcareClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           The #1 fear for early retirees — modeled in detail. ACA premiums, Medicare costs, HSA strategy, and medical tourism savings.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

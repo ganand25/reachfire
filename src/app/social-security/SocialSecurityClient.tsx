@@ -2,7 +2,7 @@
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, Legend,
@@ -10,6 +10,9 @@ import {
 import { SliderInput } from "@/components/SliderInput";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { analyzeSocialSecurity, ssImpactOnFire } from "@/lib/calculations/socialSecurity";
 import { cn } from "@/lib/utils";
 
@@ -20,13 +23,34 @@ const CLAIM_AGE_COLORS: Record<number, string> = {
   70: "oklch(0.58 0.22 40)",
 };
 
+interface SocialSecurityInputs {
+  currentAge: number;
+  avgMonthlyEarnings: number;
+  annualExpenses: number;
+  spouseEarnings: number;
+  spouseAge: number;
+}
+
+const DEFAULT_INPUTS: SocialSecurityInputs = {
+  currentAge: 45,
+  avgMonthlyEarnings: 6000,
+  annualExpenses: 60000,
+  spouseEarnings: 4000,
+  spouseAge: 43,
+};
+
 export function SocialSecurityClient(): React.JSX.Element {
-  const [currentAge, setCurrentAge] = useState(45);
-  const [avgMonthlyEarnings, setAvgMonthlyEarnings] = useState(6000);
-  const [annualExpenses, setAnnualExpenses] = useState(60000);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<SocialSecurityInputs>(
+    "reachfire:social-security",
+    DEFAULT_INPUTS
+  );
+  const { currentAge, avgMonthlyEarnings, annualExpenses, spouseEarnings, spouseAge } = inputs;
+  const setCurrentAge = (v: number): void => setInputs((prev) => ({ ...prev, currentAge: v }));
+  const setAvgMonthlyEarnings = (v: number): void => setInputs((prev) => ({ ...prev, avgMonthlyEarnings: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
+  const setSpouseEarnings = (v: number): void => setInputs((prev) => ({ ...prev, spouseEarnings: v }));
+  const setSpouseAge = (v: number): void => setInputs((prev) => ({ ...prev, spouseAge: v }));
   const [hasSpouse, setHasSpouse] = useState(false);
-  const [spouseEarnings, setSpouseEarnings] = useState(4000);
-  const [spouseAge, setSpouseAge] = useState(43);
 
   const result = useMemo(
     () =>
@@ -65,6 +89,18 @@ export function SocialSecurityClient(): React.JSX.Element {
     return points;
   }, [result.scenarios]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Claim Age", "Monthly Benefit", "Annual Benefit", "Lifetime Benefit", "Breakeven Age"];
+    const rows = result.scenarios.map((s) => [
+      s.claimAge,
+      s.monthlyBenefit,
+      s.annualBenefit,
+      s.lifetimeBenefit,
+      s.breakevenAge ?? "N/A",
+    ]);
+    downloadCSV("reachfire-social-security", headers, rows);
+  }, [result.scenarios]);
+
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
     if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -84,6 +120,11 @@ export function SocialSecurityClient(): React.JSX.Element {
           Claiming at 62 vs 70 can mean $200K+ difference over your lifetime. Find your optimal
           age and see how SS reduces the portfolio you need to FIRE.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

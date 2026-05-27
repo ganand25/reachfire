@@ -1,13 +1,16 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import {
   analyzeProperty,
   projectRentalFIRE,
@@ -32,19 +35,48 @@ function ratingColor(value: number, thresholds: { good: number; great: number },
   return "text-red-500";
 }
 
-export function RealEstateClient(): React.JSX.Element {
-  // Property inputs
-  const [purchasePrice, setPurchasePrice] = useState(350000);
-  const [downPaymentPct, setDownPaymentPct] = useState(0.20);
-  const [interestRate, setInterestRate] = useState(0.065);
-  const [monthlyRent, setMonthlyRent] = useState(2200);
-  const [monthlyExpenses, setMonthlyExpenses] = useState(600);
-  const [annualAppreciation, setAnnualAppreciation] = useState(0.03);
+interface RealEstateInputs {
+  purchasePrice: number;
+  downPaymentPct: number;
+  interestRate: number;
+  monthlyRent: number;
+  monthlyExpenses: number;
+  annualAppreciation: number;
+  currentPortfolio: number;
+  monthlySavings: number;
+  annualExpenses: number;
+}
 
-  // FIRE context
-  const [currentPortfolio, setCurrentPortfolio] = useState(200000);
-  const [monthlySavings, setMonthlySavings] = useState(3000);
-  const [annualExpenses, setAnnualExpenses] = useState(72000);
+const DEFAULT_INPUTS: RealEstateInputs = {
+  purchasePrice: 350000,
+  downPaymentPct: 0.20,
+  interestRate: 0.065,
+  monthlyRent: 2200,
+  monthlyExpenses: 600,
+  annualAppreciation: 0.03,
+  currentPortfolio: 200000,
+  monthlySavings: 3000,
+  annualExpenses: 72000,
+};
+
+export function RealEstateClient(): React.JSX.Element {
+  const [inputs, setInputs, clearInputs] = useLocalStorage<RealEstateInputs>(
+    "reachfire:real-estate",
+    DEFAULT_INPUTS
+  );
+  const {
+    purchasePrice, downPaymentPct, interestRate, monthlyRent,
+    monthlyExpenses, annualAppreciation, currentPortfolio, monthlySavings, annualExpenses,
+  } = inputs;
+  const setPurchasePrice = (v: number): void => setInputs((prev) => ({ ...prev, purchasePrice: v }));
+  const setDownPaymentPct = (v: number): void => setInputs((prev) => ({ ...prev, downPaymentPct: v }));
+  const setInterestRate = (v: number): void => setInputs((prev) => ({ ...prev, interestRate: v }));
+  const setMonthlyRent = (v: number): void => setInputs((prev) => ({ ...prev, monthlyRent: v }));
+  const setMonthlyExpenses = (v: number): void => setInputs((prev) => ({ ...prev, monthlyExpenses: v }));
+  const setAnnualAppreciation = (v: number): void => setInputs((prev) => ({ ...prev, annualAppreciation: v }));
+  const setCurrentPortfolio = (v: number): void => setInputs((prev) => ({ ...prev, currentPortfolio: v }));
+  const setMonthlySavings = (v: number): void => setInputs((prev) => ({ ...prev, monthlySavings: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
 
   const property = useMemo(() => ({
     id: "primary",
@@ -81,6 +113,12 @@ export function RealEstateClient(): React.JSX.Element {
     rent: Math.round(p.annualRentalIncome / 12),
   }));
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "Equity", "Cumulative Cash Flow", "Monthly Rent"];
+    const rows = chartData.map((d) => [d.year, d.equity, d.cashFlow, d.rent]);
+    downloadCSV("reachfire-real-estate", headers, rows);
+  }, [chartData]);
+
   function formatMoney(v: number): string {
     if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
     if (Math.abs(v) >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -100,6 +138,11 @@ export function RealEstateClient(): React.JSX.Element {
           Analyze a rental property&apos;s returns and see how passive rental income accelerates
           your path to FIRE by reducing the portfolio you need.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

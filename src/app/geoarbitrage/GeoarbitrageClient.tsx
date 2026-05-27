@@ -1,18 +1,40 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Globe, Shield, Wifi } from "lucide-react";
 import { CurrencyInput } from "@/components/CurrencyInput";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { citiesData } from "@/lib/data/costOfLiving";
 import { geoarbitrageComparison } from "@/lib/calculations/geoarbitrage";
 import { cn } from "@/lib/utils";
 
+interface GeoarbitrageInputs {
+  baseCity: string;
+  annualExpenses: number;
+  currentPortfolio: number;
+  monthlySavings: number;
+}
+
+const DEFAULT_INPUTS: GeoarbitrageInputs = {
+  baseCity: "san-francisco",
+  annualExpenses: 80000,
+  currentPortfolio: 200000,
+  monthlySavings: 4000,
+};
+
 export function GeoarbitrageClient(): React.JSX.Element {
-  const [baseCity, setBaseCity] = useState("san-francisco");
-  const [annualExpenses, setAnnualExpenses] = useState(80000);
-  const [currentPortfolio, setCurrentPortfolio] = useState(200000);
-  const [monthlySavings, setMonthlySavings] = useState(4000);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<GeoarbitrageInputs>(
+    "reachfire:geoarbitrage",
+    DEFAULT_INPUTS
+  );
+  const { baseCity, annualExpenses, currentPortfolio, monthlySavings } = inputs;
+  const setBaseCity = (v: string): void => setInputs((prev) => ({ ...prev, baseCity: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
+  const setCurrentPortfolio = (v: number): void => setInputs((prev) => ({ ...prev, currentPortfolio: v }));
+  const setMonthlySavings = (v: number): void => setInputs((prev) => ({ ...prev, monthlySavings: v }));
   const [filterRegion, setFilterRegion] = useState<"all" | "domestic" | "international">("all");
   const [filterVisa, setFilterVisa] = useState(false);
 
@@ -32,6 +54,24 @@ export function GeoarbitrageClient(): React.JSX.Element {
     return true;
   });
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["City", "Country", "FIRE Number", "Savings vs Home", "Safety", "Healthcare", "Internet (Mbps)"];
+    const rows = filteredResults.map((r) => {
+      const city = citiesData.find((c) => c.id === r.cityId);
+      const savings = baseFireNumber - r.adjustedFireNumber;
+      return [
+        city?.name ?? r.cityId,
+        city?.country ?? "",
+        Math.round(r.adjustedFireNumber),
+        Math.round(savings),
+        city?.safetyIndex ?? "",
+        city?.healthcareIndex ?? "",
+        city?.internetSpeedMbps ?? "",
+      ];
+    });
+    downloadCSV("reachfire-geoarbitrage", headers, rows);
+  }, [filteredResults, baseFireNumber]);
+
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
     if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -46,6 +86,11 @@ export function GeoarbitrageClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           Your FIRE number in San Francisco becomes a fraction of that in Lisbon or Chiang Mai. See exactly how much you save by relocating.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       {/* Inputs */}

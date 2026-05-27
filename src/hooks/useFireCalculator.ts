@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import type { FIREInputs, FIREResult } from "@/types/fire";
 import {
   fireNumber,
@@ -13,7 +14,7 @@ import { analyzeCoastFire } from "@/lib/calculations/coast";
 import { runMonteCarlo } from "@/lib/calculations/montecarlo";
 import type { MonteCarloResult } from "@/types/fire";
 
-const DEFAULT_INPUTS: FIREInputs = {
+export const DEFAULT_INPUTS: FIREInputs = {
   currentAge: 30,
   targetRetirementAge: 50,
   annualGrossIncome: 120000,
@@ -33,13 +34,39 @@ interface UseFireCalculatorReturn {
   setInput: <K extends keyof FIREInputs>(key: K, value: FIREInputs[K]) => void;
   runMonteCarloSim: () => void;
   isRunningMonteCarlo: boolean;
+  clearInputs: () => void;
 }
 
-export function useFireCalculator(initialInputs?: Partial<FIREInputs>): UseFireCalculatorReturn {
-  const [inputs, setInputs] = useState<FIREInputs>({
-    ...DEFAULT_INPUTS,
-    ...initialInputs,
-  });
+interface UseFireCalculatorOptions {
+  initialInputs?: Partial<FIREInputs>;
+  storageKey?: string;
+}
+
+export function useFireCalculator(initialInputsOrOptions?: Partial<FIREInputs> | UseFireCalculatorOptions): UseFireCalculatorReturn {
+  // Support both legacy (Partial<FIREInputs>) and new options-object signatures
+  const opts: UseFireCalculatorOptions =
+    initialInputsOrOptions && ("storageKey" in initialInputsOrOptions || "initialInputs" in initialInputsOrOptions)
+      ? (initialInputsOrOptions as UseFireCalculatorOptions)
+      : { initialInputs: initialInputsOrOptions as Partial<FIREInputs> | undefined };
+
+  const mergedDefaults = useMemo<FIREInputs>(
+    () => ({ ...DEFAULT_INPUTS, ...opts.initialInputs }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(opts.initialInputs)]
+  );
+
+  // localStorage-backed state (when storageKey provided)
+  const [storedInputs, setStoredInputs, clearStoredInputs] = useLocalStorage<FIREInputs>(
+    opts.storageKey ?? "__unused__",
+    mergedDefaults
+  );
+
+  // Plain state (when no storageKey)
+  const [plainInputs, setPlainInputs] = useState<FIREInputs>(mergedDefaults);
+
+  const useStorage = Boolean(opts.storageKey);
+  const inputs = useStorage ? storedInputs : plainInputs;
+  const setInputs = useStorage ? setStoredInputs : setPlainInputs;
   const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloResult | null>(null);
   const [isRunningMonteCarlo, setIsRunningMonteCarlo] = useState(false);
 
@@ -47,7 +74,16 @@ export function useFireCalculator(initialInputs?: Partial<FIREInputs>): UseFireC
     setInputs((prev) => ({ ...prev, [key]: value }));
     // Reset Monte Carlo when inputs change
     setMonteCarloResult(null);
-  }, []);
+  }, [setInputs]);
+
+  const clearInputs = useCallback(() => {
+    if (useStorage) {
+      clearStoredInputs();
+    } else {
+      setPlainInputs(mergedDefaults);
+    }
+    setMonteCarloResult(null);
+  }, [useStorage, clearStoredInputs, mergedDefaults]);
 
   const result = useMemo((): FIREResult => {
     const {
@@ -138,5 +174,6 @@ export function useFireCalculator(initialInputs?: Partial<FIREInputs>): UseFireC
     setInput,
     runMonteCarloSim,
     isRunningMonteCarlo,
+    clearInputs,
   };
 }

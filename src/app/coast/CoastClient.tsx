@@ -1,22 +1,48 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, ResponsiveContainer } from "recharts";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
 import { ProgressRing } from "@/components/ProgressRing";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { analyzeCoastFire, bridgeFundNeeded, coastFireNumber } from "@/lib/calculations/coast";
 import { projectedPortfolio } from "@/lib/calculations/core";
 
+interface CoastInputs {
+  currentAge: number;
+  currentSavings: number;
+  monthlySavings: number;
+  targetRetirementAge: number;
+  annualExpenses: number;
+  returnRate: number;
+}
+
+const DEFAULT_INPUTS: CoastInputs = {
+  currentAge: 30,
+  currentSavings: 100000,
+  monthlySavings: 3000,
+  targetRetirementAge: 60,
+  annualExpenses: 60000,
+  returnRate: 0.07,
+};
+
 export function CoastClient(): React.JSX.Element {
-  const [currentAge, setCurrentAge] = useState(30);
-  const [currentSavings, setCurrentSavings] = useState(100000);
-  const [monthlySavings, setMonthlySavings] = useState(3000);
-  const [targetRetirementAge, setTargetRetirementAge] = useState(60);
-  const [annualExpenses, setAnnualExpenses] = useState(60000);
-  const [returnRate, setReturnRate] = useState(0.07);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<CoastInputs>(
+    "reachfire:coast",
+    DEFAULT_INPUTS
+  );
+  const { currentAge, currentSavings, monthlySavings, targetRetirementAge, annualExpenses, returnRate } = inputs;
+  const setCurrentAge = (v: number): void => setInputs((prev) => ({ ...prev, currentAge: v }));
+  const setCurrentSavings = (v: number): void => setInputs((prev) => ({ ...prev, currentSavings: v }));
+  const setMonthlySavings = (v: number): void => setInputs((prev) => ({ ...prev, monthlySavings: v }));
+  const setTargetRetirementAge = (v: number): void => setInputs((prev) => ({ ...prev, targetRetirementAge: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
+  const setReturnRate = (v: number): void => setInputs((prev) => ({ ...prev, returnRate: v }));
 
   const analysis = useMemo(
     () =>
@@ -60,6 +86,12 @@ export function CoastClient(): React.JSX.Element {
     return data;
   }, [currentAge, currentSavings, monthlySavings, returnRate, analysis.coastAge, targetRetirementAge, annualExpenses]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Age", "Portfolio", "Coast Target", "FIRE Target"];
+    const rows = chartData.map((d) => [d.age, d.portfolio, d.coastTarget, d.fireTarget]);
+    downloadCSV("reachfire-coast", headers, rows);
+  }, [chartData]);
+
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
     if (v >= 1_000) return `$${(v / 1_000).toFixed(0)}K`;
@@ -74,6 +106,11 @@ export function CoastClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           Find the age when you can stop contributing to investments and let compound growth alone carry you to your FIRE number.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

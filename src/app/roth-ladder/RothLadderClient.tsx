@@ -2,10 +2,13 @@
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { rothLadder } from "@/lib/calculations/tax";
 import type { FilingStatus } from "@/types/fire";
 import { cn } from "@/lib/utils";
@@ -23,17 +26,50 @@ const TARGET_BRACKETS = [
   { rate: 0.24, label: "24% bracket" },
 ];
 
+interface RothLadderInputs {
+  iraBalance: number;
+  annualExpenses: number;
+  currentAge: number;
+  targetBracket: number;
+  filingStatus: FilingStatus;
+}
+
+const DEFAULT_INPUTS: RothLadderInputs = {
+  iraBalance: 300000,
+  annualExpenses: 60000,
+  currentAge: 40,
+  targetBracket: 0.12,
+  filingStatus: "single",
+};
+
 export function RothLadderClient(): React.JSX.Element {
-  const [iraBalance, setIraBalance] = useState(300000);
-  const [annualExpenses, setAnnualExpenses] = useState(60000);
-  const [currentAge, setCurrentAge] = useState(40);
-  const [targetBracket, setTargetBracket] = useState(0.12);
-  const [filingStatus, setFilingStatus] = useState<FilingStatus>("single");
+  const [inputs, setInputs, clearInputs] = useLocalStorage<RothLadderInputs>(
+    "reachfire:roth-ladder",
+    DEFAULT_INPUTS
+  );
+  const { iraBalance, annualExpenses, currentAge, targetBracket, filingStatus } = inputs;
+  const setIraBalance = (v: number): void => setInputs((prev) => ({ ...prev, iraBalance: v }));
+  const setAnnualExpenses = (v: number): void => setInputs((prev) => ({ ...prev, annualExpenses: v }));
+  const setCurrentAge = (v: number): void => setInputs((prev) => ({ ...prev, currentAge: v }));
+  const setTargetBracket = (v: number): void => setInputs((prev) => ({ ...prev, targetBracket: v }));
+  const setFilingStatus = (v: FilingStatus): void => setInputs((prev) => ({ ...prev, filingStatus: v }));
 
   const plan = useMemo(
     () => rothLadder(iraBalance, annualExpenses, targetBracket, filingStatus, currentAge, 0.07, 20),
     [iraBalance, annualExpenses, targetBracket, filingStatus, currentAge]
   );
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "Age", "Conversion Amount", "Tax on Conversion", "Available Year"];
+    const rows = plan.rungs.map((rung) => [
+      rung.conversionYear,
+      rung.conversionAge,
+      Math.round(rung.conversionAmount),
+      Math.round(rung.taxOnConversion),
+      rung.availableYear,
+    ]);
+    downloadCSV("reachfire-roth-ladder", headers, rows);
+  }, [plan]);
 
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
@@ -49,6 +85,11 @@ export function RothLadderClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           The #1 FIRE tax strategy. Convert traditional IRA funds to Roth over 5 years — each &quot;rung&quot; becomes penalty-free after the 5-year seasoning period.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -1,18 +1,37 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, ReferenceDot,
 } from "recharts";
 import { SliderInput } from "@/components/SliderInput";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { yearsToFire, fireNumber } from "@/lib/calculations/core";
 
+interface SavingsRateInputs {
+  currentSavingsRate: number;
+  annualIncome: number;
+  returnRate: number;
+}
+
+const DEFAULT_INPUTS: SavingsRateInputs = {
+  currentSavingsRate: 30,
+  annualIncome: 100000,
+  returnRate: 0.07,
+};
+
 export function SavingsRateClient(): React.JSX.Element {
-  const [currentSavingsRate, setCurrentSavingsRate] = useState(30);
-  const [annualIncome] = useState(100000);
-  const [returnRate, setReturnRate] = useState(0.07);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<SavingsRateInputs>(
+    "reachfire:savings-rate",
+    DEFAULT_INPUTS
+  );
+  const { currentSavingsRate, annualIncome, returnRate } = inputs;
+  const setCurrentSavingsRate = (v: number): void => setInputs((prev) => ({ ...prev, currentSavingsRate: v }));
+  const setReturnRate = (v: number): void => setInputs((prev) => ({ ...prev, returnRate: v }));
 
   const chartData = useMemo(() => {
     const points: Array<{ rate: number; years: number }> = [];
@@ -33,6 +52,12 @@ export function SavingsRateClient(): React.JSX.Element {
   const plus5Point = chartData.find((d) => d.rate === Math.min(90, currentSavingsRate + 5));
   const yearsSaved = currentYears && plus5Point ? currentYears - plus5Point.years : 0;
 
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Savings Rate (%)", "Years to FIRE"];
+    const rows = chartData.map((d) => [d.rate, Number(d.years.toFixed(1))]);
+    downloadCSV("reachfire-savings-rate", headers, rows);
+  }, [chartData]);
+
   const avgAmericanRate = 4.6;
 
   return (
@@ -43,6 +68,11 @@ export function SavingsRateClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           The single most powerful lever in FIRE planning. Drag the slider to see how your savings rate determines your FIRE timeline.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">

@@ -1,7 +1,7 @@
 "use client";
 import { PageEnter } from "@/components/Animated";
 
-import { useState, useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, Legend,
@@ -9,13 +9,35 @@ import {
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { SliderInput } from "@/components/SliderInput";
 import { StatCard } from "@/components/StatCard";
+import { ExportBar } from "@/components/ExportBar";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { downloadCSV } from "@/lib/csv";
 import { projectedGrowth, yearsToDouble } from "@/lib/calculations/core";
 
+interface GrowthInputs {
+  initialInvestment: number;
+  monthlyContribution: number;
+  returnRate: number;
+  years: number;
+}
+
+const DEFAULT_INPUTS: GrowthInputs = {
+  initialInvestment: 10000,
+  monthlyContribution: 1000,
+  returnRate: 0.07,
+  years: 30,
+};
+
 export function GrowthClient(): React.JSX.Element {
-  const [initialInvestment, setInitialInvestment] = useState(10000);
-  const [monthlyContribution, setMonthlyContribution] = useState(1000);
-  const [returnRate, setReturnRate] = useState(0.07);
-  const [years, setYears] = useState(30);
+  const [inputs, setInputs, clearInputs] = useLocalStorage<GrowthInputs>(
+    "reachfire:growth",
+    DEFAULT_INPUTS
+  );
+  const { initialInvestment, monthlyContribution, returnRate, years } = inputs;
+  const setInitialInvestment = (v: number): void => setInputs((prev) => ({ ...prev, initialInvestment: v }));
+  const setMonthlyContribution = (v: number): void => setInputs((prev) => ({ ...prev, monthlyContribution: v }));
+  const setReturnRate = (v: number): void => setInputs((prev) => ({ ...prev, returnRate: v }));
+  const setYears = (v: number): void => setInputs((prev) => ({ ...prev, years: v }));
 
   const projections = useMemo(
     () => projectedGrowth(initialInvestment, monthlyContribution, returnRate, years, 0.03, 30),
@@ -32,6 +54,12 @@ export function GrowthClient(): React.JSX.Element {
     contributions: Math.round(initialInvestment + monthlyContribution * 12 * p.year),
     growth: Math.round(p.portfolioValue - (initialInvestment + monthlyContribution * 12 * p.year)),
   }));
+
+  const handleExportCSV = useCallback(() => {
+    const headers = ["Year", "Contributions", "Growth", "Total"];
+    const rows = chartData.map((d) => [d.year, d.contributions, d.growth, d.contributions + d.growth]);
+    downloadCSV("reachfire-growth", headers, rows);
+  }, [chartData]);
 
   function formatMoney(v: number): string {
     if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(2)}M`;
@@ -50,6 +78,11 @@ export function GrowthClient(): React.JSX.Element {
         <p className="text-muted-foreground max-w-2xl">
           Compound interest is the 8th wonder of the world — and the hockey stick moment is when the market works harder for you than you do.
         </p>
+        <ExportBar
+          onExportCSV={handleExportCSV}
+          onReset={clearInputs}
+          className="no-print mt-3"
+        />
       </div>
 
       {/* Inputs */}
