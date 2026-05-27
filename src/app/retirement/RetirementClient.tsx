@@ -13,6 +13,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import Link from "next/link";
 import { PageEnter } from "@/components/Animated";
 import { DisclaimerBanner } from "@/components/DisclaimerBanner";
 import { CurrencyInput } from "@/components/CurrencyInput";
@@ -1019,6 +1020,17 @@ export function RetirementClient(): React.JSX.Element {
                   is a goal.
                 </p>
               </div>
+            </div>
+
+            {/* Cross-link to Family Tax */}
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold text-sm">Want to see how your strategy affects your kids?</p>
+                <p className="text-xs text-muted-foreground">Total Family Tax includes SECURE Act heir tax — the metric every other calculator misses.</p>
+              </div>
+              <Link href="/family-tax" className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium gradient-ember text-white hover:opacity-90 transition-opacity">
+                Try Family Tax
+              </Link>
             </div>
 
             <DisclaimerBanner />

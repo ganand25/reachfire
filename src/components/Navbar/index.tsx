@@ -12,6 +12,7 @@ import { Logo } from "@/components/Logo";
 const NAV_LINKS = [
   { href: "/calculator", label: "Calculator" },
   { href: "/retirement", label: "Tax Optimizer" },
+  { href: "/family-tax", label: "Family Tax" },
   { href: "/scenarios", label: "Scenarios" },
   { href: "/withdrawal", label: "Withdrawal" },
   { href: "/coast", label: "Coast FIRE" },

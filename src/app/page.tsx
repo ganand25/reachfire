@@ -13,6 +13,7 @@ import {
   Building2,
   DollarSign,
   PiggyBank,
+  Users,
 } from "lucide-react";
 import { LandingTeaser } from "./LandingTeaser";
 import { FadeUp, StaggerContainer, StaggerItem } from "@/components/Animated";
@@ -31,6 +32,13 @@ const TOOLS = [
     title: "Retirement Tax Optimizer",
     description: "Compare withdrawal strategies to minimize lifetime taxes across all accounts.",
     badge: "New",
+  },
+  {
+    href: "/family-tax",
+    icon: Users,
+    title: "Total Family Tax",
+    description: "The only calculator that includes what your kids will pay. SECURE Act heir tax + ACA subsidies.",
+    badge: "Unique",
   },
   {
     href: "/scenarios",

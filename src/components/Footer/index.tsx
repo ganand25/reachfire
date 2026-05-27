@@ -4,6 +4,8 @@ import { Logo } from "@/components/Logo";
 
 const TOOL_LINKS = [
   { href: "/calculator", label: "FIRE Calculator" },
+  { href: "/retirement", label: "Tax Optimizer" },
+  { href: "/family-tax", label: "Total Family Tax" },
   { href: "/scenarios", label: "Scenario Comparison" },
   { href: "/withdrawal", label: "Withdrawal Simulator" },
   { href: "/coast", label: "Coast FIRE" },
