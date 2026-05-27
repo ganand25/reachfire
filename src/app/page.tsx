@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 import {
   Flame,
   Shield,
@@ -14,107 +14,108 @@ import {
   DollarSign,
   PiggyBank,
   Users,
-} from "lucide-react";
-import { LandingTeaser } from "./LandingTeaser";
-import { FadeUp, StaggerContainer, StaggerItem } from "@/components/Animated";
+} from 'lucide-react';
+import { LandingTeaser } from './LandingTeaser';
+import { FadeUp, StaggerContainer, StaggerItem } from '@/components/Animated';
 
 const TOOLS = [
   {
-    href: "/calculator",
+    href: '/calculator',
     icon: BarChart3,
-    title: "FIRE Calculator",
-    description: "Monte Carlo simulations, live projections, and AI-powered insights.",
-    badge: "Core Tool",
+    title: 'FIRE Calculator',
+    description: 'Monte Carlo simulations, live projections, and AI-powered insights.',
+    badge: 'Core Tool',
   },
   {
-    href: "/retirement",
+    href: '/retirement',
     icon: PiggyBank,
-    title: "Retirement Tax Optimizer",
-    description: "Compare withdrawal strategies to minimize lifetime taxes across all accounts.",
-    badge: "New",
+    title: 'Retirement Tax Optimizer',
+    description: 'Compare withdrawal strategies to minimize lifetime taxes across all accounts.',
+    badge: 'New',
   },
   {
-    href: "/family-tax",
+    href: '/family-tax',
     icon: Users,
-    title: "Total Family Tax",
-    description: "The only calculator that includes what your kids will pay. SECURE Act heir tax + ACA subsidies.",
-    badge: "Unique",
+    title: 'Total Family Tax',
+    description:
+      'The only calculator that includes what your kids will pay. SECURE Act heir tax + ACA subsidies.',
+    badge: 'Unique',
   },
   {
-    href: "/scenarios",
+    href: '/scenarios',
     icon: TrendingUp,
-    title: "Scenario Comparison",
-    description: "Compare Lean, Regular, Fat, Coast, and Barista FIRE side by side.",
+    title: 'Scenario Comparison',
+    description: 'Compare Lean, Regular, Fat, Coast, and Barista FIRE side by side.',
     badge: null,
   },
   {
-    href: "/geoarbitrage",
+    href: '/geoarbitrage',
     icon: Globe,
-    title: "Geoarbitrage",
-    description: "See how relocating to 50+ cities worldwide shrinks your FIRE number.",
-    badge: "Unique",
+    title: 'Geoarbitrage',
+    description: 'See how relocating to 50+ cities worldwide shrinks your FIRE number.',
+    badge: 'Unique',
   },
   {
-    href: "/roth-ladder",
+    href: '/roth-ladder',
     icon: Coins,
-    title: "Roth Ladder",
-    description: "Visual 5-year seasoning timeline, tax bracket optimizer.",
+    title: 'Roth Ladder',
+    description: 'Visual 5-year seasoning timeline, tax bracket optimizer.',
     badge: null,
   },
   {
-    href: "/healthcare",
+    href: '/healthcare',
     icon: Heart,
-    title: "Healthcare Costs",
-    description: "ACA premiums, Medicare, HSA optimization, and medical tourism savings.",
-    badge: "Unique",
+    title: 'Healthcare Costs',
+    description: 'ACA premiums, Medicare, HSA optimization, and medical tourism savings.',
+    badge: 'Unique',
   },
   {
-    href: "/withdrawal",
+    href: '/withdrawal',
     icon: TrendingUp,
-    title: "Withdrawal Simulator",
-    description: "Test 4% rule and guardrails against 100 years of historical data.",
+    title: 'Withdrawal Simulator',
+    description: 'Test 4% rule and guardrails against 100 years of historical data.',
     badge: null,
   },
   {
-    href: "/coast",
+    href: '/coast',
     icon: Zap,
-    title: "Coast FIRE",
-    description: "Find the exact age when you can stop saving and coast to retirement.",
+    title: 'Coast FIRE',
+    description: 'Find the exact age when you can stop saving and coast to retirement.',
     badge: null,
   },
   {
-    href: "/one-decision",
+    href: '/one-decision',
     icon: Brain,
-    title: "One Decision Impact",
-    description: "See the compound effect of a single lifestyle change over 30 years.",
+    title: 'One Decision Impact',
+    description: 'See the compound effect of a single lifestyle change over 30 years.',
     badge: null,
   },
   {
-    href: "/social-security",
+    href: '/social-security',
     icon: DollarSign,
-    title: "Social Security",
-    description: "Optimize your claiming age. Breakeven analysis, spousal benefits.",
+    title: 'Social Security',
+    description: 'Optimize your claiming age. Breakeven analysis, spousal benefits.',
     badge: null,
   },
   {
-    href: "/real-estate",
+    href: '/real-estate',
     icon: Building2,
-    title: "Real Estate",
+    title: 'Real Estate',
     description: "Cap rate, cash-on-cash return, and rental income's impact on FIRE.",
     badge: null,
   },
   {
-    href: "/debt",
+    href: '/debt',
     icon: ArrowRight,
-    title: "Debt Payoff",
-    description: "Avalanche vs snowball comparison. See how debt freedom accelerates FIRE.",
+    title: 'Debt Payoff',
+    description: 'Avalanche vs snowball comparison. See how debt freedom accelerates FIRE.',
     badge: null,
   },
   {
-    href: "/savings-rate",
+    href: '/savings-rate',
     icon: BarChart3,
-    title: "Savings Rate",
-    description: "The single most powerful lever. See your exact FIRE timeline curve.",
+    title: 'Savings Rate',
+    description: 'The single most powerful lever. See your exact FIRE timeline curve.',
     badge: null,
   },
 ];
@@ -129,8 +130,7 @@ export default function HomePage(): React.JSX.Element {
           <div
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20"
             style={{
-              background:
-                "radial-gradient(ellipse, oklch(0.70 0.24 50) 0%, transparent 70%)",
+              background: 'radial-gradient(ellipse, oklch(0.70 0.24 50) 0%, transparent 70%)',
             }}
           />
         </div>
@@ -147,17 +147,17 @@ export default function HomePage(): React.JSX.Element {
           {/* Headline */}
           <FadeUp delay={0.08}>
             <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight mb-5 sm:mb-6">
-              Your path to{" "}
-              <span className="gradient-ember-text">financial</span>
-              <br className="hidden sm:block" />
-              {" "}<span className="gradient-ember-text">freedom</span> starts here.
+              Your path to <span className="gradient-ember-text">financial</span>
+              <br className="hidden sm:block" />{' '}
+              <span className="gradient-ember-text">freedom</span> starts here.
             </h1>
           </FadeUp>
 
           <FadeUp delay={0.16}>
             <p className="text-base sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
-              Answer a few questions and we&apos;ll show you exactly where you stand — and how to get to
-              financial independence faster. No account needed. Your data never leaves your browser.
+              Answer a few questions and we&apos;ll show you exactly where you stand — and how to
+              get to financial independence faster. No account needed. Your data never leaves your
+              browser.
             </p>
           </FadeUp>
 
@@ -192,11 +192,11 @@ export default function HomePage(): React.JSX.Element {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 max-w-3xl mx-auto">
                 {[
-                  { href: "/plan?goal=when-retire", label: "When can I retire?", emoji: "📅" },
-                  { href: "/plan?goal=reduce-taxes", label: "Reduce my taxes", emoji: "🧾" },
-                  { href: "/plan?goal=on-track", label: "Am I on track?", emoji: "🎯" },
-                  { href: "/plan?goal=where-retire", label: "Where to retire?", emoji: "🌍" },
-                  { href: "/plan?goal=withdraw-money", label: "How to withdraw?", emoji: "💰" },
+                  { href: '/plan?goal=when-retire', label: 'When can I retire?', emoji: '📅' },
+                  { href: '/plan?goal=reduce-taxes', label: 'Reduce my taxes', emoji: '🧾' },
+                  { href: '/plan?goal=on-track', label: 'Am I on track?', emoji: '🎯' },
+                  { href: '/plan?goal=where-retire', label: 'Where to retire?', emoji: '🌍' },
+                  { href: '/plan?goal=withdraw-money', label: 'How to withdraw?', emoji: '💰' },
                 ].map((goal) => (
                   <Link
                     key={goal.href}
@@ -225,19 +225,19 @@ export default function HomePage(): React.JSX.Element {
             {[
               {
                 icon: Globe,
-                title: "Geoarbitrage Explorer",
+                title: 'Geoarbitrage Explorer',
                 description:
                   'Compare 50+ cities worldwide. "Your $1.2M SF FIRE number becomes $480K in Lisbon."',
               },
               {
                 icon: Heart,
-                title: "Medical Tourism Savings",
+                title: 'Medical Tourism Savings',
                 description:
-                  "Hip replacement: $40K US vs $7K India. See your 30-year healthcare savings.",
+                  'Hip replacement: $40K US vs $7K India. See your 30-year healthcare savings.',
               },
               {
                 icon: Brain,
-                title: "AI FIRE Advisor",
+                title: 'AI FIRE Advisor',
                 description:
                   'Personalized insights: "Cutting $200/mo moves your FIRE date 14 months closer."',
               },
@@ -248,7 +248,9 @@ export default function HomePage(): React.JSX.Element {
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm mb-1">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{item.description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </StaggerItem>
             ))}
@@ -287,7 +289,9 @@ export default function HomePage(): React.JSX.Element {
                 <h3 className="font-semibold text-sm mb-1.5 group-hover:text-primary transition-colors">
                   {tool.title}
                 </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed flex-1">{tool.description}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed flex-1">
+                  {tool.description}
+                </p>
                 <div className="flex items-center gap-1 mt-3 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Open tool</span>
                   <ArrowRight className="w-3 h-3" />
@@ -306,8 +310,8 @@ export default function HomePage(): React.JSX.Element {
               Join thousands planning their escape
             </p>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-8">
-              Free forever. No account required. Your data never leaves your browser.
-              Built by the FIRE community, for the FIRE community.
+              Free forever. No account required. Your data never leaves your browser. Built by the
+              FIRE community, for the FIRE community.
             </p>
             <Link
               href="/plan"

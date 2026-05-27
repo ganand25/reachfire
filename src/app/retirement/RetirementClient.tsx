@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo } from 'react';
 import {
   AreaChart,
   Area,
@@ -12,20 +12,24 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from "recharts";
-import Link from "next/link";
-import { PageEnter } from "@/components/Animated";
-import { DisclaimerBanner } from "@/components/DisclaimerBanner";
-import { NextSteps } from "@/components/NextSteps";
-import { CurrencyInput } from "@/components/CurrencyInput";
-import { SliderInput } from "@/components/SliderInput";
-import { StatCard } from "@/components/StatCard";
-import { ExportBar } from "@/components/ExportBar";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { downloadCSV } from "@/lib/csv";
-import { cn } from "@/lib/utils";
-import type { RetirementInputs, TaxTip } from "@/types/retirement";
-import { runAllStrategies, generateTaxTips, generateBestStrategyPlan } from "@/services/withdrawal-optimizer";
+} from 'recharts';
+import Link from 'next/link';
+import { PageEnter } from '@/components/Animated';
+import { DisclaimerBanner } from '@/components/DisclaimerBanner';
+import { NextSteps } from '@/components/NextSteps';
+import { CurrencyInput } from '@/components/CurrencyInput';
+import { SliderInput } from '@/components/SliderInput';
+import { StatCard } from '@/components/StatCard';
+import { ExportBar } from '@/components/ExportBar';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { downloadCSV } from '@/lib/csv';
+import { cn } from '@/lib/utils';
+import type { RetirementInputs, TaxTip } from '@/types/retirement';
+import {
+  runAllStrategies,
+  generateTaxTips,
+  generateBestStrategyPlan,
+} from '@/services/withdrawal-optimizer';
 import {
   Shield,
   TrendingDown,
@@ -39,7 +43,7 @@ import {
   Gift,
   DollarSign,
   Zap,
-} from "lucide-react";
+} from 'lucide-react';
 
 function formatMoney(v: number): string {
   if (Math.abs(v) >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
@@ -52,17 +56,20 @@ function formatPercent(v: number): string {
 }
 
 const STRATEGY_DESCRIPTIONS: Record<string, string> = {
-  conventional: "Worst for taxes — drains Traditional first, pushing you into higher brackets early.",
-  "tax-optimized": "Best overall — fills low brackets strategically, uses 0% LTCG window, converts to Roth.",
-  "roth-ladder": "Best if early retirement — lives off taxable, converts Traditional to Roth aggressively.",
-  proportional: "Simple but suboptimal — ignores bracket optimization entirely.",
+  conventional:
+    'Worst for taxes — drains Traditional first, pushing you into higher brackets early.',
+  'tax-optimized':
+    'Best overall — fills low brackets strategically, uses 0% LTCG window, converts to Roth.',
+  'roth-ladder':
+    'Best if early retirement — lives off taxable, converts Traditional to Roth aggressively.',
+  proportional: 'Simple but suboptimal — ignores bracket optimization entirely.',
 };
 
 const DEFAULT_INPUTS: RetirementInputs = {
   currentAge: 50,
   retirementAge: 60,
   lifeExpectancy: 85,
-  filingStatus: "married",
+  filingStatus: 'married',
   traditionalBalance: 500000,
   rothBalance: 200000,
   taxableBalance: 300000,
@@ -81,21 +88,25 @@ const DEFAULT_INPUTS: RetirementInputs = {
 
 export function RetirementClient(): React.JSX.Element {
   const [inputs, setInputs, clearInputs] = useLocalStorage<RetirementInputs>(
-    "reachfire:retirement",
+    'reachfire:retirement',
     DEFAULT_INPUTS
   );
 
-  const [selectedStrategy, setSelectedStrategy] = useState("tax-optimized");
+  const [selectedStrategy, setSelectedStrategy] = useState('tax-optimized');
   const [showTable, setShowTable] = useState(false);
   const [showAccumulation, setShowAccumulation] = useState(true);
   const [showBestPlan, setShowBestPlan] = useState(false);
-  const [activeView, setActiveView] = useState<"balances" | "taxes">("balances");
+  const [activeView, setActiveView] = useState<'balances' | 'taxes'>('balances');
 
   function update<K extends keyof RetirementInputs>(key: K, value: RetirementInputs[K]): void {
     setInputs((prev) => ({ ...prev, [key]: value }));
   }
 
-  function updateContributionOverride(age: number, field: "traditional" | "roth" | "taxable" | "additionalIncome", value: number): void {
+  function updateContributionOverride(
+    age: number,
+    field: 'traditional' | 'roth' | 'taxable' | 'additionalIncome',
+    value: number
+  ): void {
     setInputs((prev) => {
       const overrides = { ...prev.contributionOverrides };
       const existing = overrides[age] ?? {};
@@ -104,7 +115,10 @@ export function RetirementClient(): React.JSX.Element {
     });
   }
 
-  function resetContributionOverride(age: number, field: "traditional" | "roth" | "taxable" | "additionalIncome"): void {
+  function resetContributionOverride(
+    age: number,
+    field: 'traditional' | 'roth' | 'taxable' | 'additionalIncome'
+  ): void {
     setInputs((prev) => {
       const overrides = { ...prev.contributionOverrides };
       if (overrides[age]) {
@@ -122,10 +136,13 @@ export function RetirementClient(): React.JSX.Element {
 
   const strategies = useMemo(() => runAllStrategies(inputs), [inputs]);
   const tips = useMemo(() => generateTaxTips(inputs, strategies), [inputs, strategies]);
-  const bestPlan = useMemo(() => generateBestStrategyPlan(inputs, strategies), [inputs, strategies]);
+  const bestPlan = useMemo(
+    () => generateBestStrategyPlan(inputs, strategies),
+    [inputs, strategies]
+  );
 
   const selected = strategies.find((s) => s.id === selectedStrategy) ?? strategies[0];
-  const conventional = strategies.find((s) => s.id === "conventional");
+  const conventional = strategies.find((s) => s.id === 'conventional');
   const bestStrategy = strategies.reduce((a, b) => (a.totalTaxes < b.totalTaxes ? a : b));
   const worstStrategy = strategies.reduce((a, b) => (a.totalTaxes > b.totalTaxes ? a : b));
   const maxSavings = worstStrategy.totalTaxes - bestStrategy.totalTaxes;
@@ -143,18 +160,31 @@ export function RetirementClient(): React.JSX.Element {
     rate: s.effectiveLifetimeRate,
   }));
 
-  const yearlyTaxData = selected.years.filter((_, i) => i % 2 === 0).map((y) => ({
-    age: y.age,
-    "Federal Tax": Math.round(y.federalTax),
-    "LTCG Tax": Math.round(y.ltcgTax),
-  }));
+  const yearlyTaxData = selected.years
+    .filter((_, i) => i % 2 === 0)
+    .map((y) => ({
+      age: y.age,
+      'Federal Tax': Math.round(y.federalTax),
+      'LTCG Tax': Math.round(y.ltcgTax),
+    }));
 
   function handleExportCSV(): void {
     const headers = [
-      "Age", "Traditional W/D", "Roth W/D", "Taxable W/D",
-      "Roth Conversion", "Social Security", "Federal Tax", "LTCG Tax",
-      "Total Tax", "Effective Rate", "Net Spending",
-      "Traditional Bal", "Roth Bal", "Taxable Bal", "Total Bal",
+      'Age',
+      'Traditional W/D',
+      'Roth W/D',
+      'Taxable W/D',
+      'Roth Conversion',
+      'Social Security',
+      'Federal Tax',
+      'LTCG Tax',
+      'Total Tax',
+      'Effective Rate',
+      'Net Spending',
+      'Traditional Bal',
+      'Roth Bal',
+      'Taxable Bal',
+      'Total Bal',
     ];
     const rows = selected.years.map((y) => [
       y.age,
@@ -185,8 +215,8 @@ export function RetirementClient(): React.JSX.Element {
               Retirement Tax Optimizer
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              Compare withdrawal strategies to minimize lifetime taxes. See exactly how much you save
-              by withdrawing from the right accounts in the right order.
+              Compare withdrawal strategies to minimize lifetime taxes. See exactly how much you
+              save by withdrawing from the right accounts in the right order.
             </p>
           </div>
           <ExportBar
@@ -212,7 +242,7 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.currentAge}
                 min={20}
                 max={70}
-                onChange={(v) => update("currentAge", v)}
+                onChange={(v) => update('currentAge', v)}
                 format="years"
               />
               <SliderInput
@@ -220,7 +250,7 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.retirementAge}
                 min={Math.max(inputs.currentAge + 1, 30)}
                 max={75}
-                onChange={(v) => update("retirementAge", v)}
+                onChange={(v) => update('retirementAge', v)}
                 format="years"
               />
               <SliderInput
@@ -228,24 +258,24 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.lifeExpectancy}
                 min={inputs.retirementAge + 5}
                 max={100}
-                onChange={(v) => update("lifeExpectancy", v)}
+                onChange={(v) => update('lifeExpectancy', v)}
                 format="years"
               />
               <div className="space-y-1.5">
                 <label className="text-sm font-medium">Filing Status</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["single", "married"] as const).map((status) => (
+                  {(['single', 'married'] as const).map((status) => (
                     <button
                       key={status}
-                      onClick={() => update("filingStatus", status)}
+                      onClick={() => update('filingStatus', status)}
                       className={cn(
-                        "px-3 py-2 rounded-lg border text-sm font-medium transition-all",
+                        'px-3 py-2 rounded-lg border text-sm font-medium transition-all',
                         inputs.filingStatus === status
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border text-muted-foreground hover:border-foreground/30"
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border text-muted-foreground hover:border-foreground/30'
                       )}
                     >
-                      {status === "single" ? "Single" : "Married"}
+                      {status === 'single' ? 'Single' : 'Married'}
                     </button>
                   ))}
                 </div>
@@ -261,19 +291,19 @@ export function RetirementClient(): React.JSX.Element {
               <CurrencyInput
                 label="Traditional 401k/IRA"
                 value={inputs.traditionalBalance}
-                onChange={(v) => update("traditionalBalance", v)}
+                onChange={(v) => update('traditionalBalance', v)}
                 hint="Pre-tax — withdrawals taxed as ordinary income"
               />
               <CurrencyInput
                 label="Roth IRA/401k"
                 value={inputs.rothBalance}
-                onChange={(v) => update("rothBalance", v)}
+                onChange={(v) => update('rothBalance', v)}
                 hint="Post-tax — qualified withdrawals are tax-free"
               />
               <CurrencyInput
                 label="Taxable Brokerage"
                 value={inputs.taxableBalance}
-                onChange={(v) => update("taxableBalance", v)}
+                onChange={(v) => update('taxableBalance', v)}
                 hint="Investment account — only gains are taxed"
               />
               <SliderInput
@@ -281,7 +311,7 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.taxableCostBasisPercent}
                 min={10}
                 max={100}
-                onChange={(v) => update("taxableCostBasisPercent", v)}
+                onChange={(v) => update('taxableCostBasisPercent', v)}
                 format="number"
                 hint="What % of your brokerage is original investment (not gains)"
               />
@@ -293,46 +323,56 @@ export function RetirementClient(): React.JSX.Element {
                 <TrendingDown className="w-4 h-4 text-primary rotate-180" />
                 Annual Contributions
               </h2>
-              <p className="text-xs text-muted-foreground">How much you add each year until retirement</p>
+              <p className="text-xs text-muted-foreground">
+                How much you add each year until retirement
+              </p>
               <CurrencyInput
                 label="Traditional 401k/IRA"
                 value={inputs.annualTraditionalContribution}
-                onChange={(v) => update("annualTraditionalContribution", v)}
+                onChange={(v) => update('annualTraditionalContribution', v)}
                 hint="2025 limit: $23,500 (401k) + $7,000 (IRA)"
               />
               <CurrencyInput
                 label="Roth IRA/401k"
                 value={inputs.annualRothContribution}
-                onChange={(v) => update("annualRothContribution", v)}
+                onChange={(v) => update('annualRothContribution', v)}
                 hint="2025 limit: $7,000 (IRA) or $23,500 (Roth 401k)"
               />
               <CurrencyInput
                 label="Taxable Brokerage"
                 value={inputs.annualTaxableContribution}
-                onChange={(v) => update("annualTaxableContribution", v)}
+                onChange={(v) => update('annualTaxableContribution', v)}
                 hint="No contribution limits"
               />
               <CurrencyInput
                 label="Additional Income (invested)"
                 value={inputs.annualAdditionalIncome}
-                onChange={(v) => update("annualAdditionalIncome", v)}
+                onChange={(v) => update('annualAdditionalIncome', v)}
                 hint="Rental, side hustle, bonus — goes into taxable brokerage"
               />
               {selected.balanceAtRetirement.total > 0 && (
                 <div className="rounded-lg bg-muted/50 p-3 space-y-1.5">
-                  <p className="text-xs font-semibold text-foreground">Projected at retirement (age {inputs.retirementAge})</p>
+                  <p className="text-xs font-semibold text-foreground">
+                    Projected at retirement (age {inputs.retirementAge})
+                  </p>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
                       <p className="text-muted-foreground">Traditional</p>
-                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.traditional)}</p>
+                      <p className="font-semibold tabular-nums">
+                        {formatMoney(selected.balanceAtRetirement.traditional)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Roth</p>
-                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.roth)}</p>
+                      <p className="font-semibold tabular-nums">
+                        {formatMoney(selected.balanceAtRetirement.roth)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Taxable</p>
-                      <p className="font-semibold tabular-nums">{formatMoney(selected.balanceAtRetirement.taxable)}</p>
+                      <p className="font-semibold tabular-nums">
+                        {formatMoney(selected.balanceAtRetirement.taxable)}
+                      </p>
                     </div>
                   </div>
                   <p className="text-xs font-bold text-primary tabular-nums">
@@ -348,7 +388,7 @@ export function RetirementClient(): React.JSX.Element {
               <CurrencyInput
                 label="Annual Expenses (today's dollars)"
                 value={inputs.annualExpenses}
-                onChange={(v) => update("annualExpenses", v)}
+                onChange={(v) => update('annualExpenses', v)}
                 hint={`At retirement (age ${inputs.retirementAge}): ${formatMoney(inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, inputs.retirementAge - inputs.currentAge))} in future dollars`}
               />
               <SliderInput
@@ -357,7 +397,7 @@ export function RetirementClient(): React.JSX.Element {
                 min={0.03}
                 max={0.12}
                 step={0.005}
-                onChange={(v) => update("growthRate", v)}
+                onChange={(v) => update('growthRate', v)}
                 format="percent"
               />
               <SliderInput
@@ -366,13 +406,13 @@ export function RetirementClient(): React.JSX.Element {
                 min={0.01}
                 max={0.06}
                 step={0.005}
-                onChange={(v) => update("inflationRate", v)}
+                onChange={(v) => update('inflationRate', v)}
                 format="percent"
               />
               <CurrencyInput
                 label="Social Security (monthly)"
                 value={inputs.socialSecurityMonthly}
-                onChange={(v) => update("socialSecurityMonthly", v)}
+                onChange={(v) => update('socialSecurityMonthly', v)}
                 hint="Expected monthly benefit in today's dollars"
               />
               <SliderInput
@@ -380,7 +420,7 @@ export function RetirementClient(): React.JSX.Element {
                 value={inputs.socialSecurityAge}
                 min={62}
                 max={70}
-                onChange={(v) => update("socialSecurityAge", v)}
+                onChange={(v) => update('socialSecurityAge', v)}
                 format="years"
               />
             </div>
@@ -397,15 +437,14 @@ export function RetirementClient(): React.JSX.Element {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-lg">
-                      Save up to{" "}
-                      <span className="text-emerald-400">{formatMoney(maxSavings)}</span>{" "}
+                      Save up to <span className="text-emerald-400">{formatMoney(maxSavings)}</span>{' '}
                       in lifetime taxes
                     </p>
                     <p className="text-sm text-muted-foreground mt-0.5">
-                      The <strong>{bestStrategy.name}</strong> strategy pays{" "}
-                      {formatMoney(bestStrategy.totalTaxes)} in total taxes vs.{" "}
-                      {formatMoney(worstStrategy.totalTaxes)} with the{" "}
-                      {worstStrategy.name} approach.
+                      The <strong>{bestStrategy.name}</strong> strategy pays{' '}
+                      {formatMoney(bestStrategy.totalTaxes)} in total taxes vs.{' '}
+                      {formatMoney(worstStrategy.totalTaxes)} with the {worstStrategy.name}{' '}
+                      approach.
                     </p>
                     <button
                       onClick={() => {
@@ -439,9 +478,13 @@ export function RetirementClient(): React.JSX.Element {
                 </div>
 
                 <div className="rounded-lg bg-card border border-border p-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">{bestPlan.whyBest}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {bestPlan.whyBest}
+                  </p>
                   <div className="flex items-baseline gap-2 mt-2">
-                    <span className="text-2xl font-bold text-emerald-400">{formatMoney(bestPlan.totalSavings)}</span>
+                    <span className="text-2xl font-bold text-emerald-400">
+                      {formatMoney(bestPlan.totalSavings)}
+                    </span>
                     <span className="text-sm text-muted-foreground">saved vs worst strategy</span>
                   </div>
                 </div>
@@ -459,7 +502,10 @@ export function RetirementClient(): React.JSX.Element {
                       </div>
                       <ul className="space-y-1.5">
                         {phase.actions.map((action, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-xs text-muted-foreground"
+                          >
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
                             <span>{action}</span>
                           </li>
@@ -476,13 +522,27 @@ export function RetirementClient(): React.JSX.Element {
                     <table className="w-full text-xs">
                       <thead>
                         <tr className="border-b border-border bg-muted/30">
-                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">Age</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Traditional</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Conversion</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Tax</th>
-                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">Bracket</th>
+                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                            Age
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Traditional
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Roth
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Taxable
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Conversion
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Tax
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Bracket
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -490,16 +550,16 @@ export function RetirementClient(): React.JSX.Element {
                           <tr key={y.age} className="border-b border-border/50">
                             <td className="px-3 py-1.5 font-medium">{y.age}</td>
                             <td className="px-3 py-1.5 text-right tabular-nums">
-                              {y.traditionalWithdraw > 0 ? formatMoney(y.traditionalWithdraw) : "—"}
+                              {y.traditionalWithdraw > 0 ? formatMoney(y.traditionalWithdraw) : '—'}
                             </td>
                             <td className="px-3 py-1.5 text-right tabular-nums">
-                              {y.rothWithdraw > 0 ? formatMoney(y.rothWithdraw) : "—"}
+                              {y.rothWithdraw > 0 ? formatMoney(y.rothWithdraw) : '—'}
                             </td>
                             <td className="px-3 py-1.5 text-right tabular-nums">
-                              {y.taxableWithdraw > 0 ? formatMoney(y.taxableWithdraw) : "—"}
+                              {y.taxableWithdraw > 0 ? formatMoney(y.taxableWithdraw) : '—'}
                             </td>
                             <td className="px-3 py-1.5 text-right tabular-nums text-primary">
-                              {y.rothConversion > 0 ? formatMoney(y.rothConversion) : "—"}
+                              {y.rothConversion > 0 ? formatMoney(y.rothConversion) : '—'}
                             </td>
                             <td className="px-3 py-1.5 text-right tabular-nums text-destructive">
                               {formatMoney(y.tax)}
@@ -517,7 +577,10 @@ export function RetirementClient(): React.JSX.Element {
                   <h3 className="font-semibold text-sm mb-2">Savings vs Other Strategies</h3>
                   <div className="space-y-2">
                     {bestPlan.comparisonVsOthers.map((c) => (
-                      <div key={c.name} className="flex items-center justify-between text-sm rounded-lg border border-border bg-card px-4 py-2.5">
+                      <div
+                        key={c.name}
+                        className="flex items-center justify-between text-sm rounded-lg border border-border bg-card px-4 py-2.5"
+                      >
                         <span className="text-muted-foreground">{c.name}</span>
                         <span className="font-semibold text-emerald-400">
                           +{formatMoney(c.yourSavings)} saved
@@ -541,10 +604,10 @@ export function RetirementClient(): React.JSX.Element {
                       key={s.id}
                       onClick={() => setSelectedStrategy(s.id)}
                       className={cn(
-                        "relative text-left rounded-xl border p-4 transition-all",
+                        'relative text-left rounded-xl border p-4 transition-all',
                         selectedStrategy === s.id
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                          : "border-border bg-card hover:border-foreground/20"
+                          ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                          : 'border-border bg-card hover:border-foreground/20'
                       )}
                     >
                       {isBest && (
@@ -559,7 +622,9 @@ export function RetirementClient(): React.JSX.Element {
                       <div className="flex items-end justify-between">
                         <div>
                           <p className="text-xs text-muted-foreground">Lifetime taxes</p>
-                          <p className="text-lg font-bold tabular-nums">{formatMoney(s.totalTaxes)}</p>
+                          <p className="text-lg font-bold tabular-nums">
+                            {formatMoney(s.totalTaxes)}
+                          </p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Effective rate</p>
@@ -604,7 +669,7 @@ export function RetirementClient(): React.JSX.Element {
                 size="sm"
               />
               <StatCard
-                label={conventional ? "Tax Savings" : "Total Withdrawn"}
+                label={conventional ? 'Tax Savings' : 'Total Withdrawn'}
                 value={
                   conventional
                     ? Math.max(0, conventional.totalTaxes - selected.totalTaxes)
@@ -614,8 +679,8 @@ export function RetirementClient(): React.JSX.Element {
                 size="sm"
                 trend={
                   conventional && conventional.totalTaxes - selected.totalTaxes > 0
-                    ? "up"
-                    : "neutral"
+                    ? 'up'
+                    : 'neutral'
                 }
               />
             </div>
@@ -625,48 +690,56 @@ export function RetirementClient(): React.JSX.Element {
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="font-semibold text-sm">Projections</h2>
                 <div className="flex rounded-lg border border-border overflow-hidden ml-auto">
-                  {(["balances", "taxes"] as const).map((view) => (
+                  {(['balances', 'taxes'] as const).map((view) => (
                     <button
                       key={view}
                       onClick={() => setActiveView(view)}
                       className={cn(
-                        "px-3 py-1 text-xs font-medium transition-colors",
+                        'px-3 py-1 text-xs font-medium transition-colors',
                         activeView === view
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
                       )}
                     >
-                      {view === "balances" ? "Account Balances" : "Yearly Taxes"}
+                      {view === 'balances' ? 'Account Balances' : 'Yearly Taxes'}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="rounded-xl border border-border bg-card p-4">
-                {activeView === "balances" ? (
+                {activeView === 'balances' ? (
                   <ResponsiveContainer width="100%" height={320}>
                     <AreaChart data={balanceChartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                       <XAxis
                         dataKey="age"
-                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                        label={{ value: "Age", position: "insideBottom", offset: -5, fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                        label={{
+                          value: 'Age',
+                          position: 'insideBottom',
+                          offset: -5,
+                          fontSize: 11,
+                          fill: 'var(--muted-foreground)',
+                        }}
                       />
                       <YAxis
                         tickFormatter={(v: number) => formatMoney(v)}
-                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                         width={65}
                       />
                       <Tooltip
-                        formatter={(v: number | undefined) => v !== undefined ? formatMoney(v) : ""}
+                        formatter={(v: number | undefined) =>
+                          v !== undefined ? formatMoney(v) : ''
+                        }
                         contentStyle={{
-                          backgroundColor: "var(--card)",
-                          border: "1px solid var(--border)",
-                          borderRadius: "8px",
-                          fontSize: "12px",
+                          backgroundColor: 'var(--card)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
                         }}
                       />
-                      <Legend wrapperStyle={{ fontSize: "12px" }} />
+                      <Legend wrapperStyle={{ fontSize: '12px' }} />
                       <Area
                         type="monotone"
                         dataKey="Traditional"
@@ -696,26 +769,44 @@ export function RetirementClient(): React.JSX.Element {
                       <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                       <XAxis
                         dataKey="age"
-                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                        label={{ value: "Age", position: "insideBottom", offset: -5, fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
+                        label={{
+                          value: 'Age',
+                          position: 'insideBottom',
+                          offset: -5,
+                          fontSize: 11,
+                          fill: 'var(--muted-foreground)',
+                        }}
                       />
                       <YAxis
                         tickFormatter={(v: number) => formatMoney(v)}
-                        tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                        tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                         width={65}
                       />
                       <Tooltip
-                        formatter={(v: number | undefined) => v !== undefined ? formatMoney(v) : ""}
+                        formatter={(v: number | undefined) =>
+                          v !== undefined ? formatMoney(v) : ''
+                        }
                         contentStyle={{
-                          backgroundColor: "var(--card)",
-                          border: "1px solid var(--border)",
-                          borderRadius: "8px",
-                          fontSize: "12px",
+                          backgroundColor: 'var(--card)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
                         }}
                       />
-                      <Legend wrapperStyle={{ fontSize: "12px" }} />
-                      <Bar dataKey="Federal Tax" stackId="a" fill="oklch(0.65 0.20 15 / 0.7)" radius={[0, 0, 0, 0]} />
-                      <Bar dataKey="LTCG Tax" stackId="a" fill="oklch(0.68 0.18 260 / 0.7)" radius={[4, 4, 0, 0]} />
+                      <Legend wrapperStyle={{ fontSize: '12px' }} />
+                      <Bar
+                        dataKey="Federal Tax"
+                        stackId="a"
+                        fill="oklch(0.65 0.20 15 / 0.7)"
+                        radius={[0, 0, 0, 0]}
+                      />
+                      <Bar
+                        dataKey="LTCG Tax"
+                        stackId="a"
+                        fill="oklch(0.68 0.18 260 / 0.7)"
+                        radius={[4, 4, 0, 0]}
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 )}
@@ -734,17 +825,17 @@ export function RetirementClient(): React.JSX.Element {
                     return (
                       <div key={d.name} className="space-y-1">
                         <div className="flex items-center justify-between text-sm">
-                          <span className={cn("font-medium", isBest && "text-emerald-400")}>
+                          <span className={cn('font-medium', isBest && 'text-emerald-400')}>
                             {d.name}
-                            {isBest && " *"}
+                            {isBest && ' *'}
                           </span>
                           <span className="tabular-nums font-semibold">{formatMoney(d.taxes)}</span>
                         </div>
                         <div className="h-3 rounded-full bg-secondary overflow-hidden">
                           <div
                             className={cn(
-                              "h-full rounded-full transition-all duration-500",
-                              isBest ? "bg-emerald-500" : "bg-primary/60"
+                              'h-full rounded-full transition-all duration-500',
+                              isBest ? 'bg-emerald-500' : 'bg-primary/60'
                             )}
                             style={{ width: `${pct}%` }}
                           />
@@ -776,7 +867,11 @@ export function RetirementClient(): React.JSX.Element {
                 className="flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors"
               >
                 Pre-Retirement Contributions (Editable)
-                {showAccumulation ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showAccumulation ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
 
               {showAccumulation && selected.accumulation.length > 0 && (
@@ -784,15 +879,33 @@ export function RetirementClient(): React.JSX.Element {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
-                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">Age</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Contrib</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Contrib</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Contrib</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Add&apos;l Income</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Trad Balance</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth Balance</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable Balance</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Total</th>
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Age
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Trad Contrib
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Roth Contrib
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Taxable Contrib
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Add&apos;l Income
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Trad Balance
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Roth Balance
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Taxable Balance
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Total
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -802,39 +915,49 @@ export function RetirementClient(): React.JSX.Element {
                           <tr
                             key={y.age}
                             className={cn(
-                              "border-b border-border/50 hover:bg-muted/20 transition-colors",
-                              hasOverride && "bg-primary/5"
+                              'border-b border-border/50 hover:bg-muted/20 transition-colors',
+                              hasOverride && 'bg-primary/5'
                             )}
                           >
                             <td className="px-3 py-1.5 font-medium">{y.age}</td>
                             <EditableCell
                               value={y.traditionalContribution}
                               isOverridden={hasOverride?.traditional !== undefined}
-                              onChange={(v) => updateContributionOverride(y.age, "traditional", v)}
-                              onReset={() => resetContributionOverride(y.age, "traditional")}
+                              onChange={(v) => updateContributionOverride(y.age, 'traditional', v)}
+                              onReset={() => resetContributionOverride(y.age, 'traditional')}
                             />
                             <EditableCell
                               value={y.rothContribution}
                               isOverridden={hasOverride?.roth !== undefined}
-                              onChange={(v) => updateContributionOverride(y.age, "roth", v)}
-                              onReset={() => resetContributionOverride(y.age, "roth")}
+                              onChange={(v) => updateContributionOverride(y.age, 'roth', v)}
+                              onReset={() => resetContributionOverride(y.age, 'roth')}
                             />
                             <EditableCell
                               value={y.taxableContribution}
                               isOverridden={hasOverride?.taxable !== undefined}
-                              onChange={(v) => updateContributionOverride(y.age, "taxable", v)}
-                              onReset={() => resetContributionOverride(y.age, "taxable")}
+                              onChange={(v) => updateContributionOverride(y.age, 'taxable', v)}
+                              onReset={() => resetContributionOverride(y.age, 'taxable')}
                             />
                             <EditableCell
                               value={y.additionalIncome}
                               isOverridden={hasOverride?.additionalIncome !== undefined}
-                              onChange={(v) => updateContributionOverride(y.age, "additionalIncome", v)}
-                              onReset={() => resetContributionOverride(y.age, "additionalIncome")}
+                              onChange={(v) =>
+                                updateContributionOverride(y.age, 'additionalIncome', v)
+                              }
+                              onReset={() => resetContributionOverride(y.age, 'additionalIncome')}
                             />
-                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.traditionalBalance)}</td>
-                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.rothBalance)}</td>
-                            <td className="px-3 py-1.5 text-right tabular-nums">{formatMoney(y.taxableBalance)}</td>
-                            <td className="px-3 py-1.5 text-right tabular-nums font-semibold">{formatMoney(y.totalBalance)}</td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {formatMoney(y.traditionalBalance)}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {formatMoney(y.rothBalance)}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums">
+                              {formatMoney(y.taxableBalance)}
+                            </td>
+                            <td className="px-3 py-1.5 text-right tabular-nums font-semibold">
+                              {formatMoney(y.totalBalance)}
+                            </td>
                           </tr>
                         );
                       })}
@@ -851,7 +974,11 @@ export function RetirementClient(): React.JSX.Element {
                 className="flex items-center gap-2 text-sm font-semibold hover:text-primary transition-colors"
               >
                 Withdrawal Year-by-Year Breakdown
-                {showTable ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showTable ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
 
               {showTable && (
@@ -859,16 +986,36 @@ export function RetirementClient(): React.JSX.Element {
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-border bg-muted/30">
-                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">Age</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Traditional</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Roth</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Taxable</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Conversion</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">SS</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Tax</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Rate</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Net</th>
-                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">Balance</th>
+                        <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                          Age
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Traditional
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Roth
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Taxable
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Conversion
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          SS
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Tax
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Rate
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Net
+                        </th>
+                        <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                          Balance
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -876,9 +1023,9 @@ export function RetirementClient(): React.JSX.Element {
                         <tr
                           key={y.age}
                           className={cn(
-                            "border-b border-border/50 hover:bg-muted/20 transition-colors",
-                            y.rmdRequired > 0 && "bg-amber-500/5",
-                            y.totalBalance <= 0 && "bg-destructive/5"
+                            'border-b border-border/50 hover:bg-muted/20 transition-colors',
+                            y.rmdRequired > 0 && 'bg-amber-500/5',
+                            y.totalBalance <= 0 && 'bg-destructive/5'
                           )}
                         >
                           <td className="px-3 py-1.5 font-medium">
@@ -888,22 +1035,24 @@ export function RetirementClient(): React.JSX.Element {
                             )}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums">
-                            {y.traditionalWithdrawal > 0 ? formatMoney(y.traditionalWithdrawal) : "—"}
+                            {y.traditionalWithdrawal > 0
+                              ? formatMoney(y.traditionalWithdrawal)
+                              : '—'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums">
-                            {y.rothWithdrawal > 0 ? formatMoney(y.rothWithdrawal) : "—"}
+                            {y.rothWithdrawal > 0 ? formatMoney(y.rothWithdrawal) : '—'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums">
-                            {y.taxableWithdrawal > 0 ? formatMoney(y.taxableWithdrawal) : "—"}
+                            {y.taxableWithdrawal > 0 ? formatMoney(y.taxableWithdrawal) : '—'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums text-primary">
-                            {y.rothConversion > 0 ? formatMoney(y.rothConversion) : "—"}
+                            {y.rothConversion > 0 ? formatMoney(y.rothConversion) : '—'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums">
-                            {y.socialSecurityIncome > 0 ? formatMoney(y.socialSecurityIncome) : "—"}
+                            {y.socialSecurityIncome > 0 ? formatMoney(y.socialSecurityIncome) : '—'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums font-medium text-destructive">
-                            {y.totalTax > 0 ? formatMoney(y.totalTax) : "$0"}
+                            {y.totalTax > 0 ? formatMoney(y.totalTax) : '$0'}
                           </td>
                           <td className="px-3 py-1.5 text-right tabular-nums">
                             {formatPercent(y.effectiveRate)}
@@ -921,7 +1070,9 @@ export function RetirementClient(): React.JSX.Element {
                       <tr className="bg-muted/30 font-semibold">
                         <td className="px-3 py-2">Total</td>
                         <td className="px-3 py-2 text-right tabular-nums">
-                          {formatMoney(selected.years.reduce((s, y) => s + y.traditionalWithdrawal, 0))}
+                          {formatMoney(
+                            selected.years.reduce((s, y) => s + y.traditionalWithdrawal, 0)
+                          )}
                         </td>
                         <td className="px-3 py-2 text-right tabular-nums">
                           {formatMoney(selected.years.reduce((s, y) => s + y.rothWithdrawal, 0))}
@@ -933,7 +1084,9 @@ export function RetirementClient(): React.JSX.Element {
                           {formatMoney(selected.years.reduce((s, y) => s + y.rothConversion, 0))}
                         </td>
                         <td className="px-3 py-2 text-right tabular-nums">
-                          {formatMoney(selected.years.reduce((s, y) => s + y.socialSecurityIncome, 0))}
+                          {formatMoney(
+                            selected.years.reduce((s, y) => s + y.socialSecurityIncome, 0)
+                          )}
                         </td>
                         <td className="px-3 py-2 text-right tabular-nums text-destructive">
                           {formatMoney(selected.totalTaxes)}
@@ -1003,24 +1156,23 @@ export function RetirementClient(): React.JSX.Element {
               <div className="text-xs text-muted-foreground space-y-2">
                 <p>
                   <strong className="text-foreground">Annual Gift Exclusion:</strong> Give up to
-                  $19,000 per person per year (2025) without any gift tax or reporting.
-                  Married couples can give $38,000 per recipient.
+                  $19,000 per person per year (2025) without any gift tax or reporting. Married
+                  couples can give $38,000 per recipient.
                 </p>
                 <p>
                   <strong className="text-foreground">Gift Appreciated Stock:</strong> Transfer
-                  appreciated shares to family members in lower tax brackets. They inherit your
-                  cost basis but may pay 0% LTCG if their income is low enough.
+                  appreciated shares to family members in lower tax brackets. They inherit your cost
+                  basis but may pay 0% LTCG if their income is low enough.
                 </p>
                 <p>
-                  <strong className="text-foreground">Roth for Heirs:</strong> Roth accounts
-                  pass tax-free to beneficiaries. Prioritizing Roth conversions now means your
-                  heirs receive tax-free money (they must withdraw within 10 years under SECURE Act).
+                  <strong className="text-foreground">Roth for Heirs:</strong> Roth accounts pass
+                  tax-free to beneficiaries. Prioritizing Roth conversions now means your heirs
+                  receive tax-free money (they must withdraw within 10 years under SECURE Act).
                 </p>
                 <p>
-                  <strong className="text-foreground">Step-Up in Basis:</strong> Taxable
-                  investments get a stepped-up cost basis at death, wiping out all unrealized
-                  gains. Consider holding highly appreciated taxable assets if estate transfer
-                  is a goal.
+                  <strong className="text-foreground">Step-Up in Basis:</strong> Taxable investments
+                  get a stepped-up cost basis at death, wiping out all unrealized gains. Consider
+                  holding highly appreciated taxable assets if estate transfer is a goal.
                 </p>
               </div>
             </div>
@@ -1028,10 +1180,18 @@ export function RetirementClient(): React.JSX.Element {
             {/* Cross-link to Family Tax */}
             <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 flex items-center justify-between gap-4">
               <div>
-                <p className="font-semibold text-sm">Want to see how your strategy affects your kids?</p>
-                <p className="text-xs text-muted-foreground">Total Family Tax includes SECURE Act heir tax — the metric every other calculator misses.</p>
+                <p className="font-semibold text-sm">
+                  Want to see how your strategy affects your kids?
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Total Family Tax includes SECURE Act heir tax — the metric every other calculator
+                  misses.
+                </p>
               </div>
-              <Link href="/family-tax" className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium gradient-ember text-white hover:opacity-90 transition-opacity">
+              <Link
+                href="/family-tax"
+                className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium gradient-ember text-white hover:opacity-90 transition-opacity"
+              >
                 Try Family Tax
               </Link>
             </div>
@@ -1057,7 +1217,7 @@ function EditableCell({
   onReset: () => void;
 }): React.JSX.Element {
   const [editing, setEditing] = useState(false);
-  const [raw, setRaw] = useState("");
+  const [raw, setRaw] = useState('');
 
   function startEdit(): void {
     setRaw(String(Math.round(value)));
@@ -1066,15 +1226,15 @@ function EditableCell({
 
   function commitEdit(): void {
     setEditing(false);
-    const parsed = parseInt(raw.replace(/[^0-9]/g, ""), 10);
+    const parsed = parseInt(raw.replace(/[^0-9]/g, ''), 10);
     if (!isNaN(parsed)) {
       onChange(parsed);
     }
   }
 
   function handleKeyDown(e: React.KeyboardEvent): void {
-    if (e.key === "Enter") commitEdit();
-    if (e.key === "Escape") setEditing(false);
+    if (e.key === 'Enter') commitEdit();
+    if (e.key === 'Escape') setEditing(false);
   }
 
   if (editing) {
@@ -1097,8 +1257,8 @@ function EditableCell({
   return (
     <td
       className={cn(
-        "px-3 py-1.5 text-right tabular-nums cursor-pointer hover:bg-primary/10 transition-colors group",
-        isOverridden && "text-primary font-semibold"
+        'px-3 py-1.5 text-right tabular-nums cursor-pointer hover:bg-primary/10 transition-colors group',
+        isOverridden && 'text-primary font-semibold'
       )}
       onClick={startEdit}
     >
@@ -1128,13 +1288,13 @@ function TipCard({ tip }: { tip: TaxTip }): React.JSX.Element {
     low: <Gift className="w-4 h-4 text-muted-foreground" />,
   };
   const borders = {
-    high: "border-amber-500/20 bg-amber-500/5",
-    medium: "border-blue-500/20 bg-blue-500/5",
-    low: "border-border bg-card",
+    high: 'border-amber-500/20 bg-amber-500/5',
+    medium: 'border-blue-500/20 bg-blue-500/5',
+    low: 'border-border bg-card',
   };
 
   return (
-    <div className={cn("rounded-xl border p-4", borders[tip.priority])}>
+    <div className={cn('rounded-xl border p-4', borders[tip.priority])}>
       <div className="flex items-start gap-3">
         <div className="shrink-0 mt-0.5">{icons[tip.priority]}</div>
         <div>

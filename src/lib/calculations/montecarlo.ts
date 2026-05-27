@@ -3,8 +3,8 @@
  * Uses log-normal distribution for stock returns
  */
 
-import type { MonteCarloParams, MonteCarloResult } from "@/types/fire";
-import { STOCK_RETURN_STD_DEV } from "@/lib/data/historicalReturns";
+import type { MonteCarloParams, MonteCarloResult } from '@/types/fire';
+import { STOCK_RETURN_STD_DEV } from '@/lib/data/historicalReturns';
 
 /**
  * Box-Muller transform: generates a standard normal random variable
@@ -21,10 +21,7 @@ function standardNormal(): number {
  * Generate a log-normal return for a year
  * For log-normal: mu = log(1+r) - sigma²/2
  */
-function logNormalReturn(
-  meanAnnualReturn: number,
-  annualStdDev: number
-): number {
+function logNormalReturn(meanAnnualReturn: number, annualStdDev: number): number {
   const mu = Math.log(1 + meanAnnualReturn) - (annualStdDev * annualStdDev) / 2;
   const sigma = annualStdDev;
   return Math.exp(mu + sigma * standardNormal()) - 1;
@@ -33,10 +30,7 @@ function logNormalReturn(
 /**
  * Run a single Monte Carlo simulation path
  */
-function runSingleSimulation(
-  params: MonteCarloParams,
-  stdDev: number
-): number[] {
+function runSingleSimulation(params: MonteCarloParams, stdDev: number): number[] {
   const {
     currentPortfolio,
     annualContribution,
@@ -132,11 +126,11 @@ export function runMonteCarlo(
  */
 export function successRateLabel(rate: number): {
   label: string;
-  color: "green" | "amber" | "red";
+  color: 'green' | 'amber' | 'red';
 } {
-  if (rate >= 90) return { label: "Excellent", color: "green" };
-  if (rate >= 80) return { label: "Good", color: "green" };
-  if (rate >= 70) return { label: "Acceptable", color: "amber" };
-  if (rate >= 60) return { label: "Risky", color: "amber" };
-  return { label: "High Risk", color: "red" };
+  if (rate >= 90) return { label: 'Excellent', color: 'green' };
+  if (rate >= 80) return { label: 'Good', color: 'green' };
+  if (rate >= 70) return { label: 'Acceptable', color: 'amber' };
+  if (rate >= 60) return { label: 'Risky', color: 'amber' };
+  return { label: 'High Risk', color: 'red' };
 }

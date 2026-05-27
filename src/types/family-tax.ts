@@ -1,4 +1,4 @@
-import type { FilingStatus } from "./retirement";
+import type { FilingStatus } from './retirement';
 
 export interface FamilyTaxInputs {
   currentAge: number;
@@ -15,11 +15,14 @@ export interface FamilyTaxInputs {
   annualTraditionalContribution: number;
   annualRothContribution: number;
   annualTaxableContribution: number;
-  contributionOverrides: Record<number, {
-    traditional?: number;
-    roth?: number;
-    taxable?: number;
-  }>;
+  contributionOverrides: Record<
+    number,
+    {
+      traditional?: number;
+      roth?: number;
+      taxable?: number;
+    }
+  >;
   annualExpenses: number;
   growthRate: number;
   inflationRate: number;

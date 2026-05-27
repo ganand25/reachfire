@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useMemo, useCallback } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
-import type { FIREInputs, FIREResult } from "@/types/fire";
+import { useState, useMemo, useCallback } from 'react';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
+import type { FIREInputs, FIREResult } from '@/types/fire';
 import {
   fireNumber,
   yearsToFire,
   fireDate,
   projectedGrowth,
   savingsRate,
-} from "@/lib/calculations/core";
-import { analyzeCoastFire } from "@/lib/calculations/coast";
-import { runMonteCarlo } from "@/lib/calculations/montecarlo";
-import type { MonteCarloResult } from "@/types/fire";
+} from '@/lib/calculations/core';
+import { analyzeCoastFire } from '@/lib/calculations/coast';
+import { runMonteCarlo } from '@/lib/calculations/montecarlo';
+import type { MonteCarloResult } from '@/types/fire';
 
 export const DEFAULT_INPUTS: FIREInputs = {
   currentAge: 30,
@@ -42,10 +42,13 @@ interface UseFireCalculatorOptions {
   storageKey?: string;
 }
 
-export function useFireCalculator(initialInputsOrOptions?: Partial<FIREInputs> | UseFireCalculatorOptions): UseFireCalculatorReturn {
+export function useFireCalculator(
+  initialInputsOrOptions?: Partial<FIREInputs> | UseFireCalculatorOptions
+): UseFireCalculatorReturn {
   // Support both legacy (Partial<FIREInputs>) and new options-object signatures
   const opts: UseFireCalculatorOptions =
-    initialInputsOrOptions && ("storageKey" in initialInputsOrOptions || "initialInputs" in initialInputsOrOptions)
+    initialInputsOrOptions &&
+    ('storageKey' in initialInputsOrOptions || 'initialInputs' in initialInputsOrOptions)
       ? (initialInputsOrOptions as UseFireCalculatorOptions)
       : { initialInputs: initialInputsOrOptions as Partial<FIREInputs> | undefined };
 
@@ -57,7 +60,7 @@ export function useFireCalculator(initialInputsOrOptions?: Partial<FIREInputs> |
 
   // localStorage-backed state (when storageKey provided)
   const [storedInputs, setStoredInputs, clearStoredInputs] = useLocalStorage<FIREInputs>(
-    opts.storageKey ?? "__unused__",
+    opts.storageKey ?? '__unused__',
     mergedDefaults
   );
 
@@ -70,11 +73,14 @@ export function useFireCalculator(initialInputsOrOptions?: Partial<FIREInputs> |
   const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloResult | null>(null);
   const [isRunningMonteCarlo, setIsRunningMonteCarlo] = useState(false);
 
-  const setInput = useCallback(<K extends keyof FIREInputs>(key: K, value: FIREInputs[K]) => {
-    setInputs((prev) => ({ ...prev, [key]: value }));
-    // Reset Monte Carlo when inputs change
-    setMonteCarloResult(null);
-  }, [setInputs]);
+  const setInput = useCallback(
+    <K extends keyof FIREInputs>(key: K, value: FIREInputs[K]) => {
+      setInputs((prev) => ({ ...prev, [key]: value }));
+      // Reset Monte Carlo when inputs change
+      setMonteCarloResult(null);
+    },
+    [setInputs]
+  );
 
   const clearInputs = useCallback(() => {
     if (useStorage) {
@@ -127,10 +133,10 @@ export function useFireCalculator(initialInputsOrOptions?: Partial<FIREInputs> |
     );
 
     // FIRE type classification based on expenses
-    let fireType: FIREResult["fireType"] = "regular_fire";
-    if (annualExpenses < 40000) fireType = "lean_fire";
-    else if (annualExpenses > 100000) fireType = "fat_fire";
-    if (years <= 0) fireType = "coast_fire";
+    let fireType: FIREResult['fireType'] = 'regular_fire';
+    if (annualExpenses < 40000) fireType = 'lean_fire';
+    else if (annualExpenses > 100000) fireType = 'fat_fire';
+    if (years <= 0) fireType = 'coast_fire';
 
     return {
       fireNumber: fireNum,

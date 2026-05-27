@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
-import { z } from "zod";
+import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
 
 const RequestSchema = z.object({
   currentAge: z.number().min(18).max(100),
@@ -11,7 +11,7 @@ const RequestSchema = z.object({
   annualExpenses: z.number().min(0),
   annualIncome: z.number().min(0),
   monthlySavings: z.number().min(0),
-  expectedReturn: z.number().min(0).max(0.30),
+  expectedReturn: z.number().min(0).max(0.3),
   withdrawalRate: z.number().min(0).max(0.15),
 });
 
@@ -20,13 +20,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
   const parsed = RequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { error: "Invalid request data", details: parsed.error.flatten() },
+      { error: 'Invalid request data', details: parsed.error.flatten() },
       { status: 400 }
     );
   }
@@ -35,10 +35,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: "AI insights not configured" },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: 'AI insights not configured' }, { status: 503 });
   }
 
   const client = new Anthropic({ apiKey });
@@ -67,26 +64,26 @@ Return ONLY a JSON array of strings, no other text. Example: ["insight 1", "insi
 
   try {
     const message = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 600,
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: 'user', content: prompt }],
     });
 
     const content = message.content[0];
-    if (content.type !== "text") {
-      throw new Error("Unexpected response type");
+    if (content.type !== 'text') {
+      throw new Error('Unexpected response type');
     }
 
     // Parse JSON array from response
     const jsonMatch = content.text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      throw new Error("No JSON array found in response");
+      throw new Error('No JSON array found in response');
     }
 
     const insights = JSON.parse(jsonMatch[0]) as string[];
 
     if (!Array.isArray(insights) || insights.length === 0) {
-      throw new Error("Invalid insights format");
+      throw new Error('Invalid insights format');
     }
 
     return NextResponse.json({
@@ -96,9 +93,9 @@ Return ONLY a JSON array of strings, no other text. Example: ["insight 1", "insi
       })),
     });
   } catch (err) {
-    console.error("AI insights error:", err instanceof Error ? err.message : "Unknown error");
+    console.error('AI insights error:', err instanceof Error ? err.message : 'Unknown error');
     return NextResponse.json(
-      { error: "Failed to generate insights. Please try again." },
+      { error: 'Failed to generate insights. Please try again.' },
       { status: 500 }
     );
   }

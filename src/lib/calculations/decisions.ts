@@ -3,8 +3,8 @@
  * Show compound effect of lifestyle changes on FIRE timeline
  */
 
-import type { LifestyleDecision, DecisionImpact } from "@/types/fire";
-import { yearsToFire, fireNumber } from "./core";
+import type { LifestyleDecision, DecisionImpact } from '@/types/fire';
+import { yearsToFire, fireNumber } from './core';
 
 /**
  * Calculate future value of monthly savings over time
@@ -34,7 +34,12 @@ export function fireImpactMonths(
 ): number {
   const fireNum = fireNumber(annualExpenses, withdrawalRate);
   const currentYears = yearsToFire(currentPortfolio, currentMonthlySavings, annualReturn, fireNum);
-  const newYears = yearsToFire(currentPortfolio, currentMonthlySavings + monthlySavings, annualReturn, fireNum);
+  const newYears = yearsToFire(
+    currentPortfolio,
+    currentMonthlySavings + monthlySavings,
+    annualReturn,
+    fireNum
+  );
   return Math.max(0, Math.round((currentYears - newYears) * 12));
 }
 
@@ -73,74 +78,74 @@ export function analyzeDecision(
  */
 export const PRESET_DECISIONS: LifestyleDecision[] = [
   {
-    id: "coffee",
-    label: "Make coffee at home",
-    description: "Skip the $5/day coffee shop habit",
+    id: 'coffee',
+    label: 'Make coffee at home',
+    description: 'Skip the $5/day coffee shop habit',
     monthlySavings: 150,
-    category: "food",
+    category: 'food',
   },
   {
-    id: "subscriptions",
-    label: "Cancel unused subscriptions",
-    description: "Cut streaming, apps, and memberships you rarely use",
+    id: 'subscriptions',
+    label: 'Cancel unused subscriptions',
+    description: 'Cut streaming, apps, and memberships you rarely use',
     monthlySavings: 100,
-    category: "subscriptions",
+    category: 'subscriptions',
   },
   {
-    id: "bike-commute",
-    label: "Bike or transit to work",
-    description: "Eliminate car costs: gas, parking, and maintenance",
+    id: 'bike-commute',
+    label: 'Bike or transit to work',
+    description: 'Eliminate car costs: gas, parking, and maintenance',
     monthlySavings: 350,
-    category: "transport",
+    category: 'transport',
   },
   {
-    id: "house-hack",
-    label: "House hack — rent a room",
-    description: "Rent a spare room or basement apartment",
+    id: 'house-hack',
+    label: 'House hack — rent a room',
+    description: 'Rent a spare room or basement apartment',
     monthlySavings: 900,
-    category: "housing",
+    category: 'housing',
   },
   {
-    id: "meal-prep",
-    label: "Meal prep instead of restaurants",
-    description: "Cut dining out from daily to weekends only",
+    id: 'meal-prep',
+    label: 'Meal prep instead of restaurants',
+    description: 'Cut dining out from daily to weekends only',
     monthlySavings: 400,
-    category: "food",
+    category: 'food',
   },
   {
-    id: "index-funds",
-    label: "Switch to index funds",
-    description: "Save 1% in fund fees — the silent wealth killer",
+    id: 'index-funds',
+    label: 'Switch to index funds',
+    description: 'Save 1% in fund fees — the silent wealth killer',
     monthlySavings: 83, // ~$100K portfolio at 1% = $1000/yr = $83/mo
-    category: "investing",
+    category: 'investing',
   },
   {
-    id: "negotiate-salary",
-    label: "Negotiate a 10% raise",
-    description: "A single salary negotiation compounds for decades",
+    id: 'negotiate-salary',
+    label: 'Negotiate a 10% raise',
+    description: 'A single salary negotiation compounds for decades',
     monthlySavings: 625, // ~$75K salary at 10% = $7500/yr = $625/mo
-    category: "income",
+    category: 'income',
   },
   {
-    id: "electric-vehicle",
-    label: "Go electric vehicle",
-    description: "Lower fuel and maintenance costs vs gas vehicle",
+    id: 'electric-vehicle',
+    label: 'Go electric vehicle',
+    description: 'Lower fuel and maintenance costs vs gas vehicle',
     monthlySavings: 200,
-    category: "transport",
+    category: 'transport',
   },
   {
-    id: "gym-cancel",
-    label: "Cancel gym — exercise outside",
-    description: "Running, cycling, or bodyweight training at home",
+    id: 'gym-cancel',
+    label: 'Cancel gym — exercise outside',
+    description: 'Running, cycling, or bodyweight training at home',
     monthlySavings: 60,
-    category: "subscriptions",
+    category: 'subscriptions',
   },
   {
-    id: "side-hustle",
-    label: "Start a side hustle",
-    description: "Freelancing, consulting, or selling online",
+    id: 'side-hustle',
+    label: 'Start a side hustle',
+    description: 'Freelancing, consulting, or selling online',
     monthlySavings: 500,
-    category: "income",
+    category: 'income',
   },
 ];
 

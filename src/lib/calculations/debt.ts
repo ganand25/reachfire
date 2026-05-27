@@ -3,8 +3,8 @@
  * Avalanche (highest interest first) and Snowball (lowest balance first) strategies
  */
 
-import type { DebtItem, PayoffSchedule, PayoffMonth } from "@/types/fire";
-import { compoundImpact } from "./decisions";
+import type { DebtItem, PayoffSchedule, PayoffMonth } from '@/types/fire';
+import { compoundImpact } from './decisions';
 
 /**
  * Sort debts for Avalanche strategy (highest interest rate first)
@@ -34,7 +34,7 @@ function effectiveMinPayment(debt: DebtItem): number {
  */
 function simulatePayoff(
   sortedDebts: DebtItem[],
-  strategy: "avalanche" | "snowball"
+  strategy: 'avalanche' | 'snowball'
 ): PayoffSchedule {
   const balances: Record<string, number> = {};
   for (const debt of sortedDebts) {
@@ -120,7 +120,7 @@ function simulatePayoff(
  * Minimizes total interest paid
  */
 export function avalanchePayoff(debts: DebtItem[]): PayoffSchedule {
-  return simulatePayoff(sortAvalanche(debts), "avalanche");
+  return simulatePayoff(sortAvalanche(debts), 'avalanche');
 }
 
 /**
@@ -128,7 +128,7 @@ export function avalanchePayoff(debts: DebtItem[]): PayoffSchedule {
  * Maximizes psychological wins with quick wins
  */
 export function snowballPayoff(debts: DebtItem[]): PayoffSchedule {
-  return simulatePayoff(sortSnowball(debts), "snowball");
+  return simulatePayoff(sortSnowball(debts), 'snowball');
 }
 
 /**
@@ -190,9 +190,10 @@ export function totalDebtSummary(debts: DebtItem[]): {
 } {
   const totalBalance = debts.reduce((sum, d) => sum + d.balance, 0);
   const totalMinimumPayment = debts.reduce((sum, d) => sum + d.minimumPayment, 0);
-  const weightedRate = totalBalance > 0
-    ? debts.reduce((sum, d) => sum + d.balance * d.interestRate, 0) / totalBalance
-    : 0;
+  const weightedRate =
+    totalBalance > 0
+      ? debts.reduce((sum, d) => sum + d.balance * d.interestRate, 0) / totalBalance
+      : 0;
 
   return {
     totalBalance,

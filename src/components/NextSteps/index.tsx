@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { NEXT_STEPS } from "@/lib/wizard-config";
-import { StaggerContainer, StaggerItem } from "@/components/Animated";
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { NEXT_STEPS } from '@/lib/wizard-config';
+import { StaggerContainer, StaggerItem } from '@/components/Animated';
 
 interface NextStepsProps {
   currentPath: string;
@@ -27,8 +27,8 @@ export function NextSteps({ currentPath }: NextStepsProps): React.JSX.Element | 
             <Link
               href={step.href}
               className={cn(
-                "flex items-start gap-3 rounded-xl border border-border bg-card p-4",
-                "hover:border-primary/40 transition-colors group"
+                'flex items-start gap-3 rounded-xl border border-border bg-card p-4',
+                'hover:border-primary/40 transition-colors group'
               )}
             >
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">

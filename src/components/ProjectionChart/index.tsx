@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   AreaChart,
@@ -10,9 +10,9 @@ import {
   ReferenceLine,
   ResponsiveContainer,
   Legend,
-} from "recharts";
-import type { YearlyProjection } from "@/types/fire";
-import { cn } from "@/lib/utils";
+} from 'recharts';
+import type { YearlyProjection } from '@/types/fire';
+import { cn } from '@/lib/utils';
 
 interface ProjectionChartProps {
   projections: YearlyProjection[];
@@ -72,7 +72,7 @@ export function ProjectionChart({
     year: p.year,
     age: p.age,
     Nominal: Math.round(p.portfolioValue),
-    "Inflation-Adjusted": Math.round(p.inflationAdjusted),
+    'Inflation-Adjusted': Math.round(p.inflationAdjusted),
   }));
 
   const maxValue = Math.max(
@@ -82,7 +82,7 @@ export function ProjectionChart({
   );
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       <ResponsiveContainer width="100%" height={280}>
         <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
           <defs>
@@ -99,12 +99,12 @@ export function ProjectionChart({
           <XAxis
             dataKey="year"
             stroke="oklch(0.52 0.02 30)"
-            tick={{ fontSize: 11, fill: "oklch(0.52 0.02 30)" }}
+            tick={{ fontSize: 11, fill: 'oklch(0.52 0.02 30)' }}
             tickLine={false}
           />
           <YAxis
             stroke="oklch(0.52 0.02 30)"
-            tick={{ fontSize: 11, fill: "oklch(0.52 0.02 30)" }}
+            tick={{ fontSize: 11, fill: 'oklch(0.52 0.02 30)' }}
             tickLine={false}
             tickFormatter={formatMoney}
             domain={[0, Math.ceil(maxValue * 1.05)]}
@@ -113,7 +113,7 @@ export function ProjectionChart({
           <Legend
             wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
             formatter={(value: string) => (
-              <span style={{ color: "oklch(0.60 0.01 60)" }}>{value}</span>
+              <span style={{ color: 'oklch(0.60 0.01 60)' }}>{value}</span>
             )}
           />
 
@@ -124,10 +124,10 @@ export function ProjectionChart({
               strokeDasharray="4 2"
               strokeWidth={1}
               label={{
-                value: "Lean FIRE",
-                position: "right",
+                value: 'Lean FIRE',
+                position: 'right',
                 fontSize: 10,
-                fill: "oklch(0.70 0.24 50)",
+                fill: 'oklch(0.70 0.24 50)',
               }}
             />
           )}
@@ -137,10 +137,10 @@ export function ProjectionChart({
             strokeDasharray="4 2"
             strokeWidth={1.5}
             label={{
-              value: "FIRE",
-              position: "right",
+              value: 'FIRE',
+              position: 'right',
               fontSize: 10,
-              fill: "oklch(0.72 0.20 40)",
+              fill: 'oklch(0.72 0.20 40)',
             }}
           />
           {fatFireNumber && (
@@ -150,10 +150,10 @@ export function ProjectionChart({
               strokeDasharray="4 2"
               strokeWidth={1}
               label={{
-                value: "Fat FIRE",
-                position: "right",
+                value: 'Fat FIRE',
+                position: 'right',
                 fontSize: 10,
-                fill: "oklch(0.82 0.18 75)",
+                fill: 'oklch(0.82 0.18 75)',
               }}
             />
           )}
@@ -165,7 +165,7 @@ export function ProjectionChart({
             strokeWidth={2.5}
             fill="url(#emberGrad)"
             dot={false}
-            activeDot={{ r: 5, fill: "oklch(0.70 0.24 50)" }}
+            activeDot={{ r: 5, fill: 'oklch(0.70 0.24 50)' }}
           />
           {showInflationAdjusted && (
             <Area
@@ -176,7 +176,7 @@ export function ProjectionChart({
               fill="url(#realGrad)"
               dot={false}
               strokeDasharray="5 3"
-              activeDot={{ r: 4, fill: "oklch(0.78 0.18 65)" }}
+              activeDot={{ r: 4, fill: 'oklch(0.78 0.18 65)' }}
             />
           )}
         </AreaChart>

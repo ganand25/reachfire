@@ -4,7 +4,7 @@ import type {
   StrategyResult,
   AccumulationYear,
   TaxTip,
-} from "@/types/retirement";
+} from '@/types/retirement';
 import {
   calculateOrdinaryTax,
   calculateLTCGTax,
@@ -14,7 +14,7 @@ import {
   STANDARD_DEDUCTION,
   TAX_BRACKETS,
   ANNUAL_GIFT_EXCLUSION,
-} from "@/lib/tax-constants";
+} from '@/lib/tax-constants';
 
 function makeEmptyYear(age: number): YearResult {
   return {
@@ -30,7 +30,7 @@ function makeEmptyYear(age: number): YearResult {
     ltcgTax: 0,
     totalTax: 0,
     effectiveRate: 0,
-    marginalBracket: 0.10,
+    marginalBracket: 0.1,
     netSpending: 0,
     traditionalBalance: 0,
     rothBalance: 0,
@@ -100,7 +100,7 @@ function computeTaxes(
   ordinaryIncome: number,
   ltcgIncome: number,
   ssIncome: number,
-  status: RetirementInputs["filingStatus"]
+  status: RetirementInputs['filingStatus']
 ): { federalTax: number; ltcgTax: number; totalTax: number } {
   const ssTaxable = calculateSocialSecurityTaxable(ssIncome, ordinaryIncome, status);
   const totalOrdinary = ordinaryIncome + ssTaxable;
@@ -250,7 +250,9 @@ function simulateTaxOptimized(inputs: RetirementInputs, start: StartingBalances)
     }
 
     // Step 4: Roth conversion — fill remaining bracket space
-    const currentOrdinary = yr.ordinaryIncome + calculateSocialSecurityTaxable(ss, yr.ordinaryIncome, inputs.filingStatus);
+    const currentOrdinary =
+      yr.ordinaryIncome +
+      calculateSocialSecurityTaxable(ss, yr.ordinaryIncome, inputs.filingStatus);
     const conversionRoom = Math.max(0, bracket12Top - currentOrdinary);
     if (conversionRoom > 0 && trad > 0) {
       const conversion = Math.min(trad, conversionRoom);
@@ -498,7 +500,12 @@ function summarizeStrategy(
 ): StrategyResult {
   const totalTaxes = years.reduce((sum, y) => sum + y.totalTax, 0);
   const totalWithdrawals = years.reduce(
-    (sum, y) => sum + y.traditionalWithdrawal + y.taxableWithdrawal + y.rothWithdrawal + y.socialSecurityIncome,
+    (sum, y) =>
+      sum +
+      y.traditionalWithdrawal +
+      y.taxableWithdrawal +
+      y.rothWithdrawal +
+      y.socialSecurityIncome,
     0
   );
   const lastWithFunds = years.findLast((y) => y.totalBalance > 0);
@@ -527,33 +534,33 @@ export function runAllStrategies(inputs: RetirementInputs): StrategyResult[] {
 
   return [
     summarizeStrategy(
-      "conventional",
-      "Conventional",
-      "Traditional first, then Taxable, then Roth. Simple but typically highest taxes.",
+      'conventional',
+      'Conventional',
+      'Traditional first, then Taxable, then Roth. Simple but typically highest taxes.',
       simulateConventional(inputs, start),
       accumulation,
       start
     ),
     summarizeStrategy(
-      "tax-optimized",
-      "Tax-Bracket Optimized",
-      "Fill the 12% bracket from Traditional, use 0% LTCG window, Roth conversions in remaining space.",
+      'tax-optimized',
+      'Tax-Bracket Optimized',
+      'Fill the 12% bracket from Traditional, use 0% LTCG window, Roth conversions in remaining space.',
       simulateTaxOptimized(inputs, start),
       accumulation,
       start
     ),
     summarizeStrategy(
-      "roth-ladder",
-      "Roth Conversion Ladder",
-      "Live off Taxable early, aggressively convert Traditional to Roth at low brackets.",
+      'roth-ladder',
+      'Roth Conversion Ladder',
+      'Live off Taxable early, aggressively convert Traditional to Roth at low brackets.',
       simulateRothLadder(inputs, start),
       accumulation,
       start
     ),
     summarizeStrategy(
-      "proportional",
-      "Proportional",
-      "Withdraw proportionally from all accounts each year.",
+      'proportional',
+      'Proportional',
+      'Withdraw proportionally from all accounts each year.',
       simulateProportional(inputs, start),
       accumulation,
       start
@@ -561,23 +568,20 @@ export function runAllStrategies(inputs: RetirementInputs): StrategyResult[] {
   ];
 }
 
-export function generateTaxTips(
-  inputs: RetirementInputs,
-  strategies: StrategyResult[]
-): TaxTip[] {
+export function generateTaxTips(inputs: RetirementInputs, strategies: StrategyResult[]): TaxTip[] {
   const tips: TaxTip[] = [];
-  const conventional = strategies.find((s) => s.id === "conventional");
-  const optimal = strategies.find((s) => s.id === "tax-optimized");
-  const rothLadder = strategies.find((s) => s.id === "roth-ladder");
+  const conventional = strategies.find((s) => s.id === 'conventional');
+  const optimal = strategies.find((s) => s.id === 'tax-optimized');
+  const rothLadder = strategies.find((s) => s.id === 'roth-ladder');
 
   if (conventional && optimal) {
     const savings = conventional.totalTaxes - optimal.totalTaxes;
     if (savings > 1000) {
       tips.push({
-        title: "Tax-bracket filling saves you money",
+        title: 'Tax-bracket filling saves you money',
         description: `By withdrawing from Traditional only up to the 12% bracket ceiling and using Roth/Taxable for the rest, you save $${Math.round(savings).toLocaleString()} in lifetime taxes vs. the conventional approach.`,
         savings,
-        priority: "high",
+        priority: 'high',
       });
     }
   }
@@ -586,10 +590,10 @@ export function generateTaxTips(
     const savings = conventional.totalTaxes - rothLadder.totalTaxes;
     if (savings > 1000) {
       tips.push({
-        title: "Roth conversions before RMDs",
+        title: 'Roth conversions before RMDs',
         description: `Converting Traditional to Roth at the 12% bracket before age 73 avoids forced RMDs at higher rates. Potential savings: $${Math.round(savings).toLocaleString()}.`,
         savings,
-        priority: "high",
+        priority: 'high',
       });
     }
   }
@@ -599,26 +603,26 @@ export function generateTaxTips(
     title: `Your standard deduction shelters $${deduction.toLocaleString()}/yr`,
     description: `The first $${deduction.toLocaleString()} of Traditional withdrawals each year is effectively tax-free thanks to the standard deduction. Always withdraw at least this much from Traditional.`,
     savings: null,
-    priority: "medium",
+    priority: 'medium',
   });
 
   if (inputs.taxableBalance > 50000) {
     const brackets = TAX_BRACKETS[inputs.filingStatus];
     const bracket12Top = (brackets[1]?.max ?? 48475) + deduction;
     tips.push({
-      title: "Harvest gains at the 0% LTCG rate",
+      title: 'Harvest gains at the 0% LTCG rate',
       description: `When your total taxable income stays under $${bracket12Top.toLocaleString()}, long-term capital gains are taxed at 0%. Sell appreciated stock in low-income years.`,
       savings: null,
-      priority: "medium",
+      priority: 'medium',
     });
   }
 
   if (inputs.traditionalBalance > 500000) {
     tips.push({
-      title: "RMDs will force taxable income at 73",
-      description: `With $${Math.round(inputs.traditionalBalance).toLocaleString()} in Traditional accounts, your first RMD at 73 will be ~$${Math.round(inputs.traditionalBalance * Math.pow(1 + inputs.growthRate, Math.max(0, 73 - inputs.currentAge)) / 26.5).toLocaleString()}. Convert to Roth beforehand to reduce this.`,
+      title: 'RMDs will force taxable income at 73',
+      description: `With $${Math.round(inputs.traditionalBalance).toLocaleString()} in Traditional accounts, your first RMD at 73 will be ~$${Math.round((inputs.traditionalBalance * Math.pow(1 + inputs.growthRate, Math.max(0, 73 - inputs.currentAge))) / 26.5).toLocaleString()}. Convert to Roth beforehand to reduce this.`,
       savings: null,
-      priority: "high",
+      priority: 'high',
     });
   }
 
@@ -626,15 +630,16 @@ export function generateTaxTips(
     title: `Gift up to $${ANNUAL_GIFT_EXCLUSION.toLocaleString()}/person/year tax-free`,
     description: `You can gift $${ANNUAL_GIFT_EXCLUSION.toLocaleString()} per recipient annually without gift tax. Married couples can gift $${(ANNUAL_GIFT_EXCLUSION * 2).toLocaleString()} together. This reduces your taxable estate and can shift income to lower-bracket family members.`,
     savings: null,
-    priority: "low",
+    priority: 'low',
   });
 
   if (inputs.retirementAge < 65) {
     tips.push({
-      title: "ACA subsidies depend on income",
-      description: "Before Medicare at 65, keeping taxable income low qualifies you for ACA premium subsidies. Tax-bracket filling + Roth withdrawals help maintain low reported income.",
+      title: 'ACA subsidies depend on income',
+      description:
+        'Before Medicare at 65, keeping taxable income low qualifies you for ACA premium subsidies. Tax-bracket filling + Roth withdrawals help maintain low reported income.',
       savings: null,
-      priority: "medium",
+      priority: 'medium',
     });
   }
 
@@ -682,31 +687,31 @@ export function generateBestStrategyPlan(
   const bracket12Top = (brackets[1]?.max ?? 48475) + deduction;
 
   const whyReasons: string[] = [];
-  if (best.id === "tax-optimized") {
+  if (best.id === 'tax-optimized') {
     whyReasons.push(
-      "It keeps your Traditional withdrawals within the 12% bracket, avoiding the 22%+ jump.",
-      "It harvests long-term capital gains at the 0% rate while your income is low.",
-      "It converts excess Traditional to Roth, reducing future RMDs."
+      'It keeps your Traditional withdrawals within the 12% bracket, avoiding the 22%+ jump.',
+      'It harvests long-term capital gains at the 0% rate while your income is low.',
+      'It converts excess Traditional to Roth, reducing future RMDs.'
     );
-  } else if (best.id === "roth-ladder") {
+  } else if (best.id === 'roth-ladder') {
     whyReasons.push(
-      "Your large Traditional balance benefits from aggressive early Roth conversions.",
+      'Your large Traditional balance benefits from aggressive early Roth conversions.',
       "Living off taxable first preserves Roth's tax-free growth.",
-      "Converting at the 12% bracket now beats paying 22%+ on forced RMDs later."
+      'Converting at the 12% bracket now beats paying 22%+ on forced RMDs later.'
     );
-  } else if (best.id === "proportional") {
+  } else if (best.id === 'proportional') {
     whyReasons.push(
-      "With your account mix, spreading withdrawals evenly keeps you in lower brackets.",
-      "No single account gets drained too fast, maintaining tax diversification."
+      'With your account mix, spreading withdrawals evenly keeps you in lower brackets.',
+      'No single account gets drained too fast, maintaining tax diversification.'
     );
   } else {
     whyReasons.push(
-      "With your specific balances, the conventional order happens to minimize total taxes.",
-      "This is uncommon — most people benefit from bracket-filling strategies."
+      'With your specific balances, the conventional order happens to minimize total taxes.',
+      'This is uncommon — most people benefit from bracket-filling strategies.'
     );
   }
 
-  const phases: BestStrategyPlan["phases"] = [];
+  const phases: BestStrategyPlan['phases'] = [];
 
   if (inputs.retirementAge < 60) {
     const earlyYears = best.years.filter((y) => y.age < 60);
@@ -717,18 +722,24 @@ export function generateBestStrategyPlan(
     const actions: string[] = [];
 
     if (earlyYears.some((y) => y.taxableWithdrawal > 0)) {
-      actions.push(`Withdraw living expenses from Taxable brokerage (tax-efficient — only gains are taxed)`);
+      actions.push(
+        `Withdraw living expenses from Taxable brokerage (tax-efficient — only gains are taxed)`
+      );
     }
     if (earlyYears.some((y) => y.traditionalWithdrawal > 0)) {
-      actions.push(`Withdraw from Traditional up to ~$${Math.round(bracket12Top).toLocaleString()}/yr (stays in 12% bracket)`);
+      actions.push(
+        `Withdraw from Traditional up to ~$${Math.round(bracket12Top).toLocaleString()}/yr (stays in 12% bracket)`
+      );
     }
     if (hasConversions) {
-      actions.push(`Convert ~$${Math.round(avgConversion).toLocaleString()}/yr from Traditional to Roth (filling low brackets)`);
+      actions.push(
+        `Convert ~$${Math.round(avgConversion).toLocaleString()}/yr from Traditional to Roth (filling low brackets)`
+      );
     }
-    actions.push("Keep Roth untouched — let it grow tax-free");
+    actions.push('Keep Roth untouched — let it grow tax-free');
 
     phases.push({
-      title: "Early Retirement",
+      title: 'Early Retirement',
       ageRange: `${inputs.retirementAge}–59`,
       actions,
     });
@@ -741,21 +752,25 @@ export function generateBestStrategyPlan(
     const hasConversions = midYears.some((y) => y.rothConversion > 0);
 
     if (avgTrad > 0) {
-      actions.push(`Withdraw ~$${Math.round(avgTrad).toLocaleString()}/yr from Traditional (within 12% bracket)`);
+      actions.push(
+        `Withdraw ~$${Math.round(avgTrad).toLocaleString()}/yr from Traditional (within 12% bracket)`
+      );
     }
     if (midYears.some((y) => y.taxableWithdrawal > 0)) {
-      actions.push("Sell taxable investments at 0% LTCG rate while income is low");
+      actions.push('Sell taxable investments at 0% LTCG rate while income is low');
     }
     if (hasConversions) {
       const avgConv = midYears.reduce((s, y) => s + y.rothConversion, 0) / midYears.length;
-      actions.push(`Continue Roth conversions (~$${Math.round(avgConv).toLocaleString()}/yr) before RMDs start at 73`);
+      actions.push(
+        `Continue Roth conversions (~$${Math.round(avgConv).toLocaleString()}/yr) before RMDs start at 73`
+      );
     }
     if (midYears.some((y) => y.rothWithdrawal > 0)) {
-      actions.push("Use Roth as tax-free buffer for spending above the bracket ceiling");
+      actions.push('Use Roth as tax-free buffer for spending above the bracket ceiling');
     }
 
     phases.push({
-      title: "Pre-RMD Phase",
+      title: 'Pre-RMD Phase',
       ageRange: `${Math.max(60, inputs.retirementAge)}–72`,
       actions,
     });
@@ -766,18 +781,20 @@ export function generateBestStrategyPlan(
     const actions: string[] = [];
     const avgRmd = rmdYears.reduce((s, y) => s + y.rmdRequired, 0) / rmdYears.length;
 
-    actions.push(`Take Required Minimum Distributions (~$${Math.round(avgRmd).toLocaleString()}/yr average)`);
+    actions.push(
+      `Take Required Minimum Distributions (~$${Math.round(avgRmd).toLocaleString()}/yr average)`
+    );
     if (rmdYears.some((y) => y.rothWithdrawal > 0)) {
-      actions.push("Supplement with tax-free Roth withdrawals to avoid bracket creep");
+      actions.push('Supplement with tax-free Roth withdrawals to avoid bracket creep');
     }
     if (rmdYears.some((y) => y.taxableWithdrawal > 0)) {
-      actions.push("Use remaining taxable funds — stepped-up basis at death benefits heirs");
+      actions.push('Use remaining taxable funds — stepped-up basis at death benefits heirs');
     }
-    actions.push("Consider gifting $19K/person/yr to reduce taxable estate");
+    actions.push('Consider gifting $19K/person/yr to reduce taxable estate');
 
     phases.push({
-      title: "RMD Phase",
-      ageRange: "73+",
+      title: 'RMD Phase',
+      ageRange: '73+',
       actions,
     });
   }
@@ -809,7 +826,7 @@ export function generateBestStrategyPlan(
     strategyName: best.name,
     totalTaxes: best.totalTaxes,
     totalSavings: worst.totalTaxes - best.totalTaxes,
-    whyBest: whyReasons.join(" "),
+    whyBest: whyReasons.join(' '),
     phases,
     firstFiveYears,
     comparisonVsOthers,

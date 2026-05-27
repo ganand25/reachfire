@@ -3,21 +3,18 @@
  * Uses 2025 federal tax brackets
  */
 
-import type { FilingStatus } from "@/types/fire";
+import type { FilingStatus } from '@/types/fire';
 import {
   TAX_BRACKETS_2025,
   CAPITAL_GAINS_BRACKETS_2025,
   STANDARD_DEDUCTION_2025,
-} from "@/lib/data/taxBrackets";
-import type { RothLadderPlan, RothLadderRung, RothLadderYearlyPlan } from "@/types/fire";
+} from '@/lib/data/taxBrackets';
+import type { RothLadderPlan, RothLadderRung, RothLadderYearlyPlan } from '@/types/fire';
 
 /**
  * Calculate federal income tax on taxable income (after deductions)
  */
-export function federalTaxOnIncome(
-  taxableIncome: number,
-  filingStatus: FilingStatus
-): number {
+export function federalTaxOnIncome(taxableIncome: number, filingStatus: FilingStatus): number {
   if (taxableIncome <= 0) return 0;
   const brackets = TAX_BRACKETS_2025[filingStatus];
   let tax = 0;
@@ -34,10 +31,7 @@ export function federalTaxOnIncome(
 /**
  * Calculate federal tax on gross income (applies standard deduction)
  */
-export function federalTax(
-  grossIncome: number,
-  filingStatus: FilingStatus
-): number {
+export function federalTax(grossIncome: number, filingStatus: FilingStatus): number {
   if (grossIncome <= 0) return 0;
   const deduction = STANDARD_DEDUCTION_2025[filingStatus];
   const taxableIncome = Math.max(0, grossIncome - deduction);
@@ -47,10 +41,7 @@ export function federalTax(
 /**
  * Calculate effective tax rate
  */
-export function effectiveTaxRate(
-  grossIncome: number,
-  filingStatus: FilingStatus
-): number {
+export function effectiveTaxRate(grossIncome: number, filingStatus: FilingStatus): number {
   if (grossIncome <= 0) return 0;
   return federalTax(grossIncome, filingStatus) / grossIncome;
 }
@@ -58,10 +49,7 @@ export function effectiveTaxRate(
 /**
  * Calculate marginal tax rate at a given income
  */
-export function marginalTaxRate(
-  grossIncome: number,
-  filingStatus: FilingStatus
-): number {
+export function marginalTaxRate(grossIncome: number, filingStatus: FilingStatus): number {
   if (grossIncome <= 0) return 0;
   const deduction = STANDARD_DEDUCTION_2025[filingStatus];
   const taxableIncome = Math.max(0, grossIncome - deduction);

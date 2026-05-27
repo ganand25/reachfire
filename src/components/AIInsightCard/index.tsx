@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { X, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useCallback } from 'react';
+import { X, Sparkles } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AIInsight {
   id: string;
   text: string;
-  type?: "tip" | "warning" | "success";
+  type?: 'tip' | 'warning' | 'success';
 }
 
 interface AIInsightCardProps {
@@ -33,8 +33,8 @@ export function AIInsightCard({
   return (
     <div
       className={cn(
-        "relative rounded-xl p-4 glass-card border-ember glow-ember-sm",
-        "animate-in fade-in slide-in-from-bottom-2 duration-300",
+        'relative rounded-xl p-4 glass-card border-ember glow-ember-sm',
+        'animate-in fade-in slide-in-from-bottom-2 duration-300',
         className
       )}
     >
@@ -72,7 +72,7 @@ export function AIInsightsPanel({
 }: AIInsightsPanelProps): React.JSX.Element {
   if (isLoading) {
     return (
-      <div className={cn("space-y-3", className)}>
+      <div className={cn('space-y-3', className)}>
         {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-xl p-4 border border-border animate-pulse">
             <div className="flex gap-3">
@@ -89,7 +89,7 @@ export function AIInsightsPanel({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <div className={cn('space-y-3', className)}>
       {insights.map((insight) => (
         <AIInsightCard key={insight.id} insight={insight} onDismiss={onDismiss} />
       ))}

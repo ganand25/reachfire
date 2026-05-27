@@ -111,10 +111,10 @@ export interface MedicareCostData {
 
 export const MEDICARE_COSTS: MedicareCostData = {
   partB: {
-    baseMonthly: 174.70,
+    baseMonthly: 174.7,
     avgSupplementalAnnual: 2400, // Medigap Plan G average
   },
   partD: {
-    avgMonthlyPremium: 55.50,
+    avgMonthlyPremium: 55.5,
   },
 };

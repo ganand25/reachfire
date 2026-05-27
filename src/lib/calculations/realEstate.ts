@@ -66,7 +66,9 @@ function remainingBalance(
   if (annualRate === 0) return principal - (principal / (termYears * 12)) * monthsPaid;
   const r = annualRate / 12;
   const n = termYears * 12;
-  return principal * (Math.pow(1 + r, n) - Math.pow(1 + r, monthsPaid)) / (Math.pow(1 + r, n) - 1);
+  return (
+    (principal * (Math.pow(1 + r, n) - Math.pow(1 + r, monthsPaid))) / (Math.pow(1 + r, n) - 1)
+  );
 }
 
 export function analyzeProperty(prop: RentalProperty): PropertyMetrics {
@@ -80,7 +82,8 @@ export function analyzeProperty(prop: RentalProperty): PropertyMetrics {
 
   const capRate = (monthlyNOI * 12) / prop.purchasePrice;
   const cashOnCashReturn = downPayment > 0 ? annualCashFlow / downPayment : 0;
-  const grossRentMultiplier = prop.monthlyRent > 0 ? prop.purchasePrice / (prop.monthlyRent * 12) : 0;
+  const grossRentMultiplier =
+    prop.monthlyRent > 0 ? prop.purchasePrice / (prop.monthlyRent * 12) : 0;
 
   // Annual equity paydown (year 1 approximation)
   const year1Balance = remainingBalance(loanAmount, prop.interestRate, prop.loanTermYears, 12);
@@ -93,8 +96,7 @@ export function analyzeProperty(prop: RentalProperty): PropertyMetrics {
   const totalAnnualReturn = annualCashFlow + annualEquityPaydown + annualAppreciation;
   const totalROI = downPayment > 0 ? totalAnnualReturn / downPayment : 0;
 
-  const breakEvenMonths =
-    monthlyCashFlow > 0 ? Math.ceil(downPayment / monthlyCashFlow) : Infinity;
+  const breakEvenMonths = monthlyCashFlow > 0 ? Math.ceil(downPayment / monthlyCashFlow) : Infinity;
 
   return {
     downPayment,
@@ -111,10 +113,7 @@ export function analyzeProperty(prop: RentalProperty): PropertyMetrics {
   };
 }
 
-export function projectRentalFIRE(
-  prop: RentalProperty,
-  years = 30
-): RentalFIREProjection[] {
+export function projectRentalFIRE(prop: RentalProperty, years = 30): RentalFIREProjection[] {
   const downPayment = prop.purchasePrice * prop.downPaymentPct;
   const loanAmount = prop.purchasePrice - downPayment;
   const monthlyMortgage = monthlyMortgagePayment(loanAmount, prop.interestRate, prop.loanTermYears);
@@ -124,14 +123,20 @@ export function projectRentalFIRE(
   for (let year = 1; year <= years; year++) {
     const portfolioValue = prop.purchasePrice * Math.pow(1 + prop.annualAppreciation, year);
     const monthsPaid = Math.min(year * 12, prop.loanTermYears * 12);
-    const mortgageBalance = remainingBalance(loanAmount, prop.interestRate, prop.loanTermYears, monthsPaid);
+    const mortgageBalance = remainingBalance(
+      loanAmount,
+      prop.interestRate,
+      prop.loanTermYears,
+      monthsPaid
+    );
     const equity = portfolioValue - Math.max(0, mortgageBalance);
 
     // Rent grows with appreciation
-    const annualRentalIncome = prop.monthlyRent * 12 * Math.pow(1 + prop.annualAppreciation * 0.7, year);
+    const annualRentalIncome =
+      prop.monthlyRent * 12 * Math.pow(1 + prop.annualAppreciation * 0.7, year);
 
     // Cash flow grows as rent increases (mortgage is fixed)
-    const yearMonthlyCashFlow = (annualRentalIncome / 12 - prop.monthlyExpenses) - monthlyMortgage;
+    const yearMonthlyCashFlow = annualRentalIncome / 12 - prop.monthlyExpenses - monthlyMortgage;
     cumulativeCashFlow += Math.max(0, yearMonthlyCashFlow * 12);
 
     projections.push({

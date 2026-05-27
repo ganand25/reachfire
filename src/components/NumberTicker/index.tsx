@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface NumberTickerProps {
   value: number;
-  format?: "currency" | "percent" | "integer" | "decimal";
+  format?: 'currency' | 'percent' | 'integer' | 'decimal';
   decimals?: number;
   prefix?: string;
   suffix?: string;
@@ -15,25 +15,25 @@ interface NumberTickerProps {
 
 function formatNumber(
   value: number,
-  format: NumberTickerProps["format"],
+  format: NumberTickerProps['format'],
   decimals: number = 0
 ): string {
   switch (format) {
-    case "currency":
+    case 'currency':
       if (value >= 1_000_000) {
         return `$${(value / 1_000_000).toFixed(2)}M`;
       }
       if (value >= 1_000) {
         return `$${(value / 1_000).toFixed(0)}K`;
       }
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
         maximumFractionDigits: 0,
       }).format(value);
-    case "percent":
+    case 'percent':
       return `${(value * 100).toFixed(decimals)}%`;
-    case "decimal":
+    case 'decimal':
       return value.toFixed(decimals);
     default:
       return Math.round(value).toLocaleString();
@@ -42,10 +42,10 @@ function formatNumber(
 
 export function NumberTicker({
   value,
-  format = "integer",
+  format = 'integer',
   decimals = 0,
-  prefix = "",
-  suffix = "",
+  prefix = '',
+  suffix = '',
   duration = 600,
   className,
 }: NumberTickerProps): React.JSX.Element {
@@ -85,7 +85,7 @@ export function NumberTicker({
   }, [value, duration]);
 
   return (
-    <span className={cn("tabular-nums", className)}>
+    <span className={cn('tabular-nums', className)}>
       {prefix}
       {formatNumber(displayValue, format, decimals)}
       {suffix}

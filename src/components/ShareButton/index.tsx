@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
-import { Share2, Check } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useCallback } from 'react';
+import { Share2, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ShareButtonProps {
   params: Record<string, string | number | boolean>;
@@ -20,7 +20,7 @@ function encodeParams(params: Record<string, string | number | boolean>): string
 
 export function ShareButton({
   params,
-  label = "Share",
+  label = 'Share',
   className,
 }: ShareButtonProps): React.JSX.Element {
   const [copied, setCopied] = useState(false);
@@ -35,11 +35,11 @@ export function ShareButton({
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // Fallback for browsers that block clipboard
-      const textarea = document.createElement("textarea");
+      const textarea = document.createElement('textarea');
       textarea.value = url;
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand("copy");
+      document.execCommand('copy');
       document.body.removeChild(textarea);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -50,10 +50,10 @@ export function ShareButton({
     <button
       onClick={handleShare}
       className={cn(
-        "inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg",
-        "border border-border hover:border-primary hover:text-primary",
-        "transition-colors duration-150",
-        copied && "border-emerald-500 text-emerald-400",
+        'inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg',
+        'border border-border hover:border-primary hover:text-primary',
+        'transition-colors duration-150',
+        copied && 'border-emerald-500 text-emerald-400',
         className
       )}
     >
@@ -75,9 +75,7 @@ export function ShareButton({
 /**
  * Parse URL params back into a typed object
  */
-export function decodeShareParams(
-  search: string
-): Record<string, string> {
+export function decodeShareParams(search: string): Record<string, string> {
   const params = new URLSearchParams(search);
   const result: Record<string, string> = {};
   for (const [key, value] of params.entries()) {

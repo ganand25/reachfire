@@ -2,7 +2,7 @@ import type {
   FamilyTaxInputs,
   FamilyTaxYearResult,
   FamilyTaxStrategyResult,
-} from "@/types/family-tax";
+} from '@/types/family-tax';
 import {
   calculateOrdinaryTax,
   calculateLTCGTax,
@@ -10,8 +10,8 @@ import {
   getRMD,
   STANDARD_DEDUCTION,
   TAX_BRACKETS,
-} from "@/lib/tax-constants";
-import { calculateACASubsidy, calculateIRMAA, calculateHeirTax } from "@/lib/aca-constants";
+} from '@/lib/tax-constants';
+import { calculateACASubsidy, calculateIRMAA, calculateHeirTax } from '@/lib/aca-constants';
 
 interface Balances {
   trad: number;
@@ -43,7 +43,7 @@ function computeYearTaxes(
   ordinaryIncome: number,
   ltcgIncome: number,
   ssIncome: number,
-  status: FamilyTaxInputs["filingStatus"]
+  status: FamilyTaxInputs['filingStatus']
 ): { federalTax: number; ltcgTax: number } {
   const ssTaxable = calculateSocialSecurityTaxable(ssIncome, ordinaryIncome, status);
   const totalOrdinary = ordinaryIncome + ssTaxable;
@@ -57,11 +57,25 @@ function computeYearTaxes(
 function makeYear(age: number): FamilyTaxYearResult {
   return {
     age,
-    traditionalWithdrawal: 0, rothWithdrawal: 0, taxableWithdrawal: 0, cashWithdrawal: 0,
-    rothConversion: 0, socialSecurityIncome: 0, magi: 0,
-    federalTax: 0, ltcgTax: 0, irmaaSurcharge: 0, parentTax: 0, acaSubsidy: 0,
-    traditionalBalance: 0, rothBalance: 0, taxableBalance: 0, cashBalance: 0, totalBalance: 0,
-    heirTaxIfDeathThisYear: 0, rothPercentOfTotal: 0,
+    traditionalWithdrawal: 0,
+    rothWithdrawal: 0,
+    taxableWithdrawal: 0,
+    cashWithdrawal: 0,
+    rothConversion: 0,
+    socialSecurityIncome: 0,
+    magi: 0,
+    federalTax: 0,
+    ltcgTax: 0,
+    irmaaSurcharge: 0,
+    parentTax: 0,
+    acaSubsidy: 0,
+    traditionalBalance: 0,
+    rothBalance: 0,
+    taxableBalance: 0,
+    cashBalance: 0,
+    totalBalance: 0,
+    heirTaxIfDeathThisYear: 0,
+    rothPercentOfTotal: 0,
   };
 }
 
@@ -83,24 +97,30 @@ const simulateConventional: StrategyFn = (inputs, start) => {
 
     const rmd = getRMD(age, trad);
     const tradW = Math.min(trad, Math.max(remaining, rmd));
-    trad -= tradW; remaining -= tradW;
+    trad -= tradW;
+    remaining -= tradW;
     yr.traditionalWithdrawal = tradW;
 
     if (remaining > 0 && taxable > 0) {
       const w = Math.min(taxable, remaining);
       yr.taxableWithdrawal = w;
       yr.ltcgTax = 0; // computed below
-      taxable -= w; remaining -= w;
+      taxable -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && roth > 0) {
       const w = Math.min(roth, remaining);
-      yr.rothWithdrawal = w; roth -= w; remaining -= w;
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && cash > 0) {
       const w = Math.min(cash, remaining);
-      yr.cashWithdrawal = w; cash -= w; remaining -= w;
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
     }
 
     const ltcgIncome = yr.taxableWithdrawal * (1 - costBasis);
@@ -153,22 +173,29 @@ const simulateTaxOptimized: StrategyFn = (inputs, start) => {
     const ssTaxable = calculateSocialSecurityTaxable(ss, 0, inputs.filingStatus);
     const tradTarget = Math.max(0, bracket12Top - ssTaxable);
     const tradW = Math.min(trad, Math.max(Math.min(tradTarget, remaining), rmd));
-    trad -= tradW; remaining -= Math.min(tradW, remaining);
+    trad -= tradW;
+    remaining -= Math.min(tradW, remaining);
     yr.traditionalWithdrawal = tradW;
 
     if (remaining > 0 && taxable > 0) {
       const w = Math.min(taxable, remaining);
-      yr.taxableWithdrawal = w; taxable -= w; remaining -= w;
+      yr.taxableWithdrawal = w;
+      taxable -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && roth > 0) {
       const w = Math.min(roth, remaining);
-      yr.rothWithdrawal = w; roth -= w; remaining -= w;
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && cash > 0) {
       const w = Math.min(cash, remaining);
-      yr.cashWithdrawal = w; cash -= w; remaining -= w;
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
     }
 
     // Roth conversion in remaining bracket space
@@ -176,7 +203,8 @@ const simulateTaxOptimized: StrategyFn = (inputs, start) => {
     const convRoom = Math.max(0, bracket12Top - currentOrdinary);
     if (convRoom > 0 && trad > 0) {
       const conv = Math.min(trad, convRoom);
-      trad -= conv; roth += conv;
+      trad -= conv;
+      roth += conv;
       yr.rothConversion = conv;
     }
 
@@ -229,38 +257,51 @@ const simulateRothLadder: StrategyFn = (inputs, start) => {
     const rmd = getRMD(age, trad);
     if (rmd > 0) {
       const tradW = Math.min(trad, Math.max(remaining, rmd));
-      trad -= tradW; remaining -= Math.min(tradW, remaining);
+      trad -= tradW;
+      remaining -= Math.min(tradW, remaining);
       yr.traditionalWithdrawal = tradW;
     }
 
     if (remaining > 0 && taxable > 0) {
       const w = Math.min(taxable, remaining);
-      yr.taxableWithdrawal = w; taxable -= w; remaining -= w;
+      yr.taxableWithdrawal = w;
+      taxable -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && cash > 0) {
       const w = Math.min(cash, remaining);
-      yr.cashWithdrawal = w; cash -= w; remaining -= w;
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && roth > 0 && age >= 60) {
       const w = Math.min(roth, remaining);
-      yr.rothWithdrawal = w; roth -= w; remaining -= w;
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
     }
 
     if (remaining > 0 && trad > 0) {
       const tradW = Math.min(trad, remaining);
-      trad -= tradW; remaining -= tradW;
+      trad -= tradW;
+      remaining -= tradW;
       yr.traditionalWithdrawal += tradW;
     }
 
     // Aggressive Roth conversion
-    const ssTaxable = calculateSocialSecurityTaxable(ss, yr.traditionalWithdrawal, inputs.filingStatus);
+    const ssTaxable = calculateSocialSecurityTaxable(
+      ss,
+      yr.traditionalWithdrawal,
+      inputs.filingStatus
+    );
     const currentOrd = yr.traditionalWithdrawal + ssTaxable;
     const convRoom = Math.max(0, bracket12Top - currentOrd);
     if (convRoom > 0 && trad > 0) {
       const conv = Math.min(trad, convRoom);
-      trad -= conv; roth += conv;
+      trad -= conv;
+      roth += conv;
       yr.rothConversion = conv;
     }
 
@@ -315,32 +356,44 @@ const simulateAggressiveRoth: StrategyFn = (inputs, start) => {
     // Spend from taxable + cash first to maximize Roth conversion room
     if (remaining > 0 && taxable > 0) {
       const w = Math.min(taxable, remaining);
-      yr.taxableWithdrawal = w; taxable -= w; remaining -= w;
+      yr.taxableWithdrawal = w;
+      taxable -= w;
+      remaining -= w;
     }
     if (remaining > 0 && cash > 0) {
       const w = Math.min(cash, remaining);
-      yr.cashWithdrawal = w; cash -= w; remaining -= w;
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
     }
 
     // Take RMD or more from Traditional if needed
     if (rmd > 0 || remaining > 0) {
       const tradW = Math.min(trad, Math.max(remaining, rmd));
-      trad -= tradW; remaining -= Math.min(tradW, remaining);
+      trad -= tradW;
+      remaining -= Math.min(tradW, remaining);
       yr.traditionalWithdrawal = tradW;
     }
 
     if (remaining > 0 && roth > 0) {
       const w = Math.min(roth, remaining);
-      yr.rothWithdrawal = w; roth -= w; remaining -= w;
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
     }
 
     // Aggressive conversion: fill up to 22% bracket
-    const ssTaxable = calculateSocialSecurityTaxable(ss, yr.traditionalWithdrawal, inputs.filingStatus);
+    const ssTaxable = calculateSocialSecurityTaxable(
+      ss,
+      yr.traditionalWithdrawal,
+      inputs.filingStatus
+    );
     const currentOrd = yr.traditionalWithdrawal + ssTaxable;
     const convRoom = Math.max(0, bracket22Top - currentOrd);
     if (convRoom > 0 && trad > 0) {
       const conv = Math.min(trad, convRoom);
-      trad -= conv; roth += conv;
+      trad -= conv;
+      roth += conv;
       yr.rothConversion = conv;
     }
 
@@ -394,29 +447,41 @@ const simulateMaxRoth: StrategyFn = (inputs, start) => {
 
     if (remaining > 0 && taxable > 0) {
       const w = Math.min(taxable, remaining);
-      yr.taxableWithdrawal = w; taxable -= w; remaining -= w;
+      yr.taxableWithdrawal = w;
+      taxable -= w;
+      remaining -= w;
     }
     if (remaining > 0 && cash > 0) {
       const w = Math.min(cash, remaining);
-      yr.cashWithdrawal = w; cash -= w; remaining -= w;
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
     }
     if (rmd > 0 || remaining > 0) {
       const tradW = Math.min(trad, Math.max(remaining, rmd));
-      trad -= tradW; remaining -= Math.min(tradW, remaining);
+      trad -= tradW;
+      remaining -= Math.min(tradW, remaining);
       yr.traditionalWithdrawal = tradW;
     }
     if (remaining > 0 && roth > 0) {
       const w = Math.min(roth, remaining);
-      yr.rothWithdrawal = w; roth -= w; remaining -= w;
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
     }
 
     // Max conversion: fill up to 24% bracket
-    const ssTaxable = calculateSocialSecurityTaxable(ss, yr.traditionalWithdrawal, inputs.filingStatus);
+    const ssTaxable = calculateSocialSecurityTaxable(
+      ss,
+      yr.traditionalWithdrawal,
+      inputs.filingStatus
+    );
     const currentOrd = yr.traditionalWithdrawal + ssTaxable;
     const convRoom = Math.max(0, bracket24Top - currentOrd);
     if (convRoom > 0 && trad > 0) {
       const conv = Math.min(trad, convRoom);
-      trad -= conv; roth += conv;
+      trad -= conv;
+      roth += conv;
       yr.rothConversion = conv;
     }
 
@@ -463,19 +528,24 @@ function summarize(
   const totalFamilyTax = parentLifetimeTax + heirTaxAtDeath - totalAcaSubsidies;
 
   return {
-    id, name, description, years,
+    id,
+    name,
+    description,
+    years,
     parentLifetimeTax,
     totalAcaSubsidies,
     heirTaxAtDeath,
     totalFamilyTax,
     rothPercentToHeirs: lastYear?.rothPercentOfTotal ?? 0,
-    balanceAtDeath: lastYear ? {
-      traditional: lastYear.traditionalBalance,
-      roth: lastYear.rothBalance,
-      taxable: lastYear.taxableBalance,
-      cash: lastYear.cashBalance,
-      total: lastYear.totalBalance,
-    } : { traditional: 0, roth: 0, taxable: 0, cash: 0, total: 0 },
+    balanceAtDeath: lastYear
+      ? {
+          traditional: lastYear.traditionalBalance,
+          roth: lastYear.rothBalance,
+          taxable: lastYear.taxableBalance,
+          cash: lastYear.cashBalance,
+          total: lastYear.totalBalance,
+        }
+      : { traditional: 0, roth: 0, taxable: 0, cash: 0, total: 0 },
   };
 }
 
@@ -483,11 +553,36 @@ export function runFamilyTaxStrategies(inputs: FamilyTaxInputs): FamilyTaxStrate
   const start = simulateAccumulation(inputs);
 
   const strategies: [string, string, string, StrategyFn][] = [
-    ["conventional", "Conventional", "Traditional first. Simple but typically worst for total family tax.", simulateConventional],
-    ["tax-optimized", "Tax-Bracket Optimized", "Fill 12% bracket, Roth conversions in remaining space. Balances parent tax vs heir tax.", simulateTaxOptimized],
-    ["roth-ladder", "Roth Conversion Ladder", "Live off taxable, convert at 12% bracket. Good balance of ACA subsidies and heir tax.", simulateRothLadder],
-    ["aggressive-roth", "Aggressive Roth (22%)", "Convert up to 22% bracket. Higher parent tax, much lower heir tax.", simulateAggressiveRoth],
-    ["max-roth", "Max Roth (24%)", "Convert up to 24% bracket. Highest parent tax but minimizes heir tax and maximizes tax-free legacy.", simulateMaxRoth],
+    [
+      'conventional',
+      'Conventional',
+      'Traditional first. Simple but typically worst for total family tax.',
+      simulateConventional,
+    ],
+    [
+      'tax-optimized',
+      'Tax-Bracket Optimized',
+      'Fill 12% bracket, Roth conversions in remaining space. Balances parent tax vs heir tax.',
+      simulateTaxOptimized,
+    ],
+    [
+      'roth-ladder',
+      'Roth Conversion Ladder',
+      'Live off taxable, convert at 12% bracket. Good balance of ACA subsidies and heir tax.',
+      simulateRothLadder,
+    ],
+    [
+      'aggressive-roth',
+      'Aggressive Roth (22%)',
+      'Convert up to 22% bracket. Higher parent tax, much lower heir tax.',
+      simulateAggressiveRoth,
+    ],
+    [
+      'max-roth',
+      'Max Roth (24%)',
+      'Convert up to 24% bracket. Highest parent tax but minimizes heir tax and maximizes tax-free legacy.',
+      simulateMaxRoth,
+    ],
   ];
 
   return strategies.map(([id, name, desc, fn]) =>

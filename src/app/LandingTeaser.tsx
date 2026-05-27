@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useMemo } from "react";
-import { yearsToFire, fireNumber } from "@/lib/calculations/core";
+import { useState, useMemo } from 'react';
+import { yearsToFire, fireNumber } from '@/lib/calculations/core';
 
 export function LandingTeaser(): React.JSX.Element {
   const [savingsRate, setSavingsRate] = useState(30);
@@ -15,7 +15,7 @@ export function LandingTeaser(): React.JSX.Element {
     return { years: Math.min(yrs, 60), targetPortfolio: fireNum };
   }, [savingsRate]);
 
-  const yearsLabel = years >= 60 ? "60+ years" : `${years.toFixed(1)} years`;
+  const yearsLabel = years >= 60 ? '60+ years' : `${years.toFixed(1)} years`;
   const portfolioLabel =
     targetPortfolio >= 1_000_000
       ? `$${(targetPortfolio / 1_000_000).toFixed(2)}M`
@@ -23,7 +23,7 @@ export function LandingTeaser(): React.JSX.Element {
 
   const fireDate = new Date();
   fireDate.setFullYear(fireDate.getFullYear() + Math.round(years));
-  const fireDateLabel = years >= 60 ? "—" : String(fireDate.getFullYear());
+  const fireDateLabel = years >= 60 ? '—' : String(fireDate.getFullYear());
 
   return (
     <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card/80 backdrop-blur p-6 text-left">

@@ -3,9 +3,9 @@
  * Pre-65 ACA marketplace + post-65 Medicare projections
  */
 
-import { ACA_BENCHMARK_PREMIUMS, MEDICARE_COSTS } from "@/lib/data/healthcareCosts";
-import { PROCEDURE_COSTS, type ProcedureCostData } from "@/lib/data/medicalTourism";
-import { HSA_LIMITS_2025 } from "@/lib/data/taxBrackets";
+import { ACA_BENCHMARK_PREMIUMS, MEDICARE_COSTS } from '@/lib/data/healthcareCosts';
+import { PROCEDURE_COSTS, type ProcedureCostData } from '@/lib/data/medicalTourism';
+import { HSA_LIMITS_2025 } from '@/lib/data/taxBrackets';
 
 export interface HealthcareCostProjection {
   age: number;
@@ -51,18 +51,18 @@ export function acaPremium(
   age: number,
   annualIncome: number,
   familySize: number = 1,
-  state: string = "national"
+  state: string = 'national'
 ): number {
   if (age >= 65) return 0; // Medicare kicks in
 
-  const stateData = ACA_BENCHMARK_PREMIUMS[state] ?? ACA_BENCHMARK_PREMIUMS["national"];
+  const stateData = ACA_BENCHMARK_PREMIUMS[state] ?? ACA_BENCHMARK_PREMIUMS['national'];
 
   // Find age band
-  const ageBand = stateData.ageBands.find(
-    (band) => age >= band.minAge && age <= band.maxAge
-  );
+  const ageBand = stateData.ageBands.find((band) => age >= band.minAge && age <= band.maxAge);
 
-  const basePremium = ageBand ? ageBand.monthlyPremium * familySize : stateData.ageBands[stateData.ageBands.length - 1].monthlyPremium * familySize;
+  const basePremium = ageBand
+    ? ageBand.monthlyPremium * familySize
+    : stateData.ageBands[stateData.ageBands.length - 1].monthlyPremium * familySize;
 
   // Calculate ACA subsidy (premium tax credit)
   // For incomes 100-400% FPL, cap at certain % of income
@@ -70,9 +70,12 @@ export function acaPremium(
   const fplPercent = (annualIncome / fpl2025) * 100;
 
   let maxPremiumPercent = 0;
-  if (fplPercent <= 100) maxPremiumPercent = 0; // full subsidy (Medicaid expansion)
-  else if (fplPercent <= 133) maxPremiumPercent = 0; // Medicaid
-  else if (fplPercent <= 150) maxPremiumPercent = 0; // enhanced ARP subsidies
+  if (fplPercent <= 100)
+    maxPremiumPercent = 0; // full subsidy (Medicaid expansion)
+  else if (fplPercent <= 133)
+    maxPremiumPercent = 0; // Medicaid
+  else if (fplPercent <= 150)
+    maxPremiumPercent = 0; // enhanced ARP subsidies
   else if (fplPercent <= 200) maxPremiumPercent = 0.02;
   else if (fplPercent <= 250) maxPremiumPercent = 0.04;
   else if (fplPercent <= 300) maxPremiumPercent = 0.06;
@@ -83,7 +86,10 @@ export function acaPremium(
   const maxAfterSubsidy = annualIncome * maxPremiumPercent;
 
   // Subsidy = full premium minus capped amount (can't go below $0)
-  const netAnnualPremium = Math.max(0, Math.min(annualPremium, maxAfterSubsidy > 0 ? maxAfterSubsidy : annualPremium));
+  const netAnnualPremium = Math.max(
+    0,
+    Math.min(annualPremium, maxAfterSubsidy > 0 ? maxAfterSubsidy : annualPremium)
+  );
 
   return netAnnualPremium;
 }
@@ -96,11 +102,11 @@ export function medicarePremium(annualIncome: number): number {
 
   // IRMAA brackets for 2025 (single filer)
   let partBMonthly = partB.baseMonthly;
-  if (annualIncome > 106000 && annualIncome <= 133000) partBMonthly = 259.60;
-  else if (annualIncome > 133000 && annualIncome <= 167000) partBMonthly = 370.20;
-  else if (annualIncome > 167000 && annualIncome <= 200000) partBMonthly = 480.90;
-  else if (annualIncome > 200000 && annualIncome <= 500000) partBMonthly = 591.60;
-  else if (annualIncome > 500000) partBMonthly = 628.90;
+  if (annualIncome > 106000 && annualIncome <= 133000) partBMonthly = 259.6;
+  else if (annualIncome > 133000 && annualIncome <= 167000) partBMonthly = 370.2;
+  else if (annualIncome > 167000 && annualIncome <= 200000) partBMonthly = 480.9;
+  else if (annualIncome > 200000 && annualIncome <= 500000) partBMonthly = 591.6;
+  else if (annualIncome > 500000) partBMonthly = 628.9;
 
   const partBannual = partBMonthly * 12;
   const partDannual = partD.avgMonthlyPremium * 12;
@@ -129,7 +135,10 @@ export function hsaProjection(
   let cumulativeContributions = 0;
 
   for (let year = 1; year <= years; year++) {
-    const yearContrib = currentAge + year - 1 >= 55 ? effectiveContrib + HSA_LIMITS_2025.catchup_55_plus : effectiveContrib;
+    const yearContrib =
+      currentAge + year - 1 >= 55
+        ? effectiveContrib + HSA_LIMITS_2025.catchup_55_plus
+        : effectiveContrib;
     const growth = (balance + yearContrib) * returnRate;
     balance = balance + yearContrib + growth;
     cumulativeContributions += yearContrib;
@@ -157,7 +166,7 @@ export function lifetimeHealthcareCost(
   annualIncome: number = 50000,
   familySize: number = 1,
   inflationRate: number = 0.055, // healthcare inflation ~5.5%
-  state: string = "national"
+  state: string = 'national'
 ): LifetimeHealthcareResult {
   const yearlyProjections: HealthcareCostProjection[] = [];
   const currentYear = new Date().getFullYear();

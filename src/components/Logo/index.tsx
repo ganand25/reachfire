@@ -33,7 +33,14 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps): Re
         </defs>
 
         {/* Outer circle */}
-        <circle cx="20" cy="20" r="19" stroke="url(#reachfire-gradient)" strokeWidth="1.5" opacity="0.3" />
+        <circle
+          cx="20"
+          cy="20"
+          r="19"
+          stroke="url(#reachfire-gradient)"
+          strokeWidth="1.5"
+          opacity="0.3"
+        />
 
         {/* Flame shape - upward pointing fire */}
         <path
@@ -75,7 +82,10 @@ export function Logo({ className, showText = true, size = 'md' }: LogoProps): Re
 /**
  * Logo Symbol Only - for use in favicons or compact spaces
  */
-export function LogoSymbol({ className, size = 'md' }: Omit<LogoProps, 'showText'>): React.JSX.Element {
+export function LogoSymbol({
+  className,
+  size = 'md',
+}: Omit<LogoProps, 'showText'>): React.JSX.Element {
   const sizes = {
     sm: 'w-8 h-8',
     md: 'w-10 h-10',
@@ -98,7 +108,14 @@ export function LogoSymbol({ className, size = 'md' }: Omit<LogoProps, 'showText
       </defs>
 
       {/* Outer circle */}
-      <circle cx="20" cy="20" r="19" stroke="url(#reachfire-gradient-symbol)" strokeWidth="1.5" opacity="0.3" />
+      <circle
+        cx="20"
+        cy="20"
+        r="19"
+        stroke="url(#reachfire-gradient-symbol)"
+        strokeWidth="1.5"
+        opacity="0.3"
+      />
 
       {/* Flame shape */}
       <path

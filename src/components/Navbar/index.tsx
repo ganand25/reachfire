@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { Menu, X, Flame, Sun, Moon, ChevronDown } from "lucide-react";
-import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { Logo } from "@/components/Logo";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState, useRef, useEffect } from 'react';
+import { Menu, X, Flame, Sun, Moon, ChevronDown } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { Logo } from '@/components/Logo';
 
 const NAV_LINKS = [
-  { href: "/calculator", label: "Calculator" },
-  { href: "/retirement", label: "Tax Optimizer" },
-  { href: "/family-tax", label: "Family Tax" },
-  { href: "/scenarios", label: "Scenarios" },
-  { href: "/withdrawal", label: "Withdrawal" },
-  { href: "/coast", label: "Coast FIRE" },
-  { href: "/roth-ladder", label: "Roth Ladder" },
-  { href: "/geoarbitrage", label: "Geoarbitrage" },
+  { href: '/calculator', label: 'Calculator' },
+  { href: '/retirement', label: 'Tax Optimizer' },
+  { href: '/family-tax', label: 'Family Tax' },
+  { href: '/scenarios', label: 'Scenarios' },
+  { href: '/withdrawal', label: 'Withdrawal' },
+  { href: '/coast', label: 'Coast FIRE' },
+  { href: '/roth-ladder', label: 'Roth Ladder' },
+  { href: '/geoarbitrage', label: 'Geoarbitrage' },
 ];
 
 const MORE_LINKS = [
-  { href: "/healthcare", label: "Healthcare" },
-  { href: "/one-decision", label: "One Decision" },
-  { href: "/savings-rate", label: "Savings Rate" },
-  { href: "/growth", label: "Growth" },
-  { href: "/debt", label: "Debt Payoff" },
-  { href: "/social-security", label: "Social Security" },
-  { href: "/real-estate", label: "Real Estate" },
-  { href: "/about", label: "Methodology" },
+  { href: '/healthcare', label: 'Healthcare' },
+  { href: '/one-decision', label: 'One Decision' },
+  { href: '/savings-rate', label: 'Savings Rate' },
+  { href: '/growth', label: 'Growth' },
+  { href: '/debt', label: 'Debt Payoff' },
+  { href: '/social-security', label: 'Social Security' },
+  { href: '/real-estate', label: 'Real Estate' },
+  { href: '/about', label: 'Methodology' },
 ];
 
 export function Navbar(): React.JSX.Element {
@@ -45,8 +45,8 @@ export function Navbar(): React.JSX.Element {
         setMoreOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   // Close mobile menu on route change — use ref to avoid sync setState in effect
@@ -74,10 +74,10 @@ export function Navbar(): React.JSX.Element {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "px-3 py-1.5 text-sm rounded-md transition-colors",
+                  'px-3 py-1.5 text-sm rounded-md transition-colors',
                   pathname === link.href
-                    ? "text-primary font-medium bg-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    ? 'text-primary font-medium bg-accent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                 )}
               >
                 {link.label}
@@ -89,14 +89,19 @@ export function Navbar(): React.JSX.Element {
               <button
                 onClick={() => setMoreOpen((v) => !v)}
                 className={cn(
-                  "flex items-center gap-1 px-3 py-1.5 text-sm rounded-md transition-colors",
+                  'flex items-center gap-1 px-3 py-1.5 text-sm rounded-md transition-colors',
                   moreOpen
-                    ? "text-foreground bg-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    ? 'text-foreground bg-accent'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                 )}
               >
                 More
-                <ChevronDown className={cn("w-3 h-3 transition-transform duration-150", moreOpen && "rotate-180")} />
+                <ChevronDown
+                  className={cn(
+                    'w-3 h-3 transition-transform duration-150',
+                    moreOpen && 'rotate-180'
+                  )}
+                />
               </button>
               <AnimatePresence>
                 {moreOpen && (
@@ -113,10 +118,10 @@ export function Navbar(): React.JSX.Element {
                         href={link.href}
                         onClick={() => setMoreOpen(false)}
                         className={cn(
-                          "block px-4 py-2 text-sm transition-colors",
+                          'block px-4 py-2 text-sm transition-colors',
                           pathname === link.href
-                            ? "text-primary bg-accent"
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                            ? 'text-primary bg-accent'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                         )}
                       >
                         {link.label}
@@ -131,11 +136,15 @@ export function Navbar(): React.JSX.Element {
           {/* CTA + theme toggle + mobile toggle */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
               className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
               aria-label="Toggle theme"
             >
-              {resolvedTheme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {resolvedTheme === 'dark' ? (
+                <Sun className="w-4 h-4" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
             </button>
             <Link
               href="/plan"
@@ -159,9 +168,9 @@ export function Navbar(): React.JSX.Element {
         {mobileOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2, ease: "easeInOut" }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
             className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl overflow-hidden"
           >
             <nav className="max-w-7xl mx-auto px-4 py-3 grid grid-cols-2 gap-0.5">
@@ -170,10 +179,10 @@ export function Navbar(): React.JSX.Element {
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    "px-3 py-2.5 text-sm rounded-md transition-colors",
+                    'px-3 py-2.5 text-sm rounded-md transition-colors',
                     pathname === link.href
-                      ? "text-primary font-medium bg-accent"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                      ? 'text-primary font-medium bg-accent'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                   )}
                 >
                   {link.label}

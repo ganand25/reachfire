@@ -1,4 +1,4 @@
-export type FilingStatus = "single" | "married";
+export type FilingStatus = 'single' | 'married';
 
 export interface RetirementInputs {
   currentAge: number;
@@ -13,12 +13,15 @@ export interface RetirementInputs {
   annualRothContribution: number;
   annualTaxableContribution: number;
   annualAdditionalIncome: number;
-  contributionOverrides: Record<number, {
-    traditional?: number;
-    roth?: number;
-    taxable?: number;
-    additionalIncome?: number;
-  }>;
+  contributionOverrides: Record<
+    number,
+    {
+      traditional?: number;
+      roth?: number;
+      taxable?: number;
+      additionalIncome?: number;
+    }
+  >;
   annualExpenses: number;
   growthRate: number;
   inflationRate: number;
@@ -83,5 +86,5 @@ export interface TaxTip {
   title: string;
   description: string;
   savings: number | null;
-  priority: "high" | "medium" | "low";
+  priority: 'high' | 'medium' | 'low';
 }

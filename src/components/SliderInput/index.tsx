@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { useCallback } from 'react';
+import { cn } from '@/lib/utils';
 
 interface SliderInputProps {
   label: React.ReactNode;
@@ -10,25 +10,25 @@ interface SliderInputProps {
   max: number;
   step?: number;
   onChange: (value: number) => void;
-  format?: "currency" | "percent" | "number" | "years";
+  format?: 'currency' | 'percent' | 'number' | 'years';
   minLabel?: string;
   maxLabel?: string;
   hint?: string;
   className?: string;
 }
 
-function formatValue(value: number, format: SliderInputProps["format"]): string {
+function formatValue(value: number, format: SliderInputProps['format']): string {
   switch (format) {
-    case "currency":
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
+    case 'currency':
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
         maximumFractionDigits: 0,
       }).format(value);
-    case "percent":
+    case 'percent':
       return `${(value * 100).toFixed(1)}%`;
-    case "years":
-      return `${value} yr${value !== 1 ? "s" : ""}`;
+    case 'years':
+      return `${value} yr${value !== 1 ? 's' : ''}`;
     default:
       return value.toLocaleString();
   }
@@ -41,7 +41,7 @@ export function SliderInput({
   max,
   step = 1,
   onChange,
-  format = "number",
+  format = 'number',
   minLabel,
   maxLabel,
   hint,
@@ -57,7 +57,7 @@ export function SliderInput({
   );
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-foreground">{label}</label>
         <span className="text-sm font-semibold text-primary tabular-nums">
@@ -90,22 +90,24 @@ export function SliderInput({
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
 
       <style jsx>{`
-        input[type="range"]::-webkit-slider-thumb {
+        input[type='range']::-webkit-slider-thumb {
           -webkit-appearance: none;
           width: 18px;
           height: 18px;
           border-radius: 50%;
           background: var(--primary);
           cursor: pointer;
-          box-shadow: 0 0 8px oklch(0.70 0.24 50 / 0.4);
+          box-shadow: 0 0 8px oklch(0.7 0.24 50 / 0.4);
           border: 2px solid var(--background);
-          transition: transform 0.1s, box-shadow 0.1s;
+          transition:
+            transform 0.1s,
+            box-shadow 0.1s;
         }
-        input[type="range"]::-webkit-slider-thumb:hover {
+        input[type='range']::-webkit-slider-thumb:hover {
           transform: scale(1.2);
-          box-shadow: 0 0 12px oklch(0.70 0.24 50 / 0.6);
+          box-shadow: 0 0 12px oklch(0.7 0.24 50 / 0.6);
         }
-        input[type="range"]::-moz-range-thumb {
+        input[type='range']::-moz-range-thumb {
           width: 18px;
           height: 18px;
           border-radius: 50%;

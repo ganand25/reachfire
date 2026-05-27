@@ -3,23 +3,18 @@
  */
 
 export type WithdrawalStrategy =
-  | "four_percent"
-  | "three_five_percent"
-  | "variable_percentage"
-  | "guardrails";
+  | 'four_percent'
+  | 'three_five_percent'
+  | 'variable_percentage'
+  | 'guardrails';
 
-export type FIREType =
-  | "lean_fire"
-  | "regular_fire"
-  | "fat_fire"
-  | "coast_fire"
-  | "barista_fire";
+export type FIREType = 'lean_fire' | 'regular_fire' | 'fat_fire' | 'coast_fire' | 'barista_fire';
 
 export type FilingStatus =
-  | "single"
-  | "married_jointly"
-  | "married_separately"
-  | "head_of_household";
+  | 'single'
+  | 'married_jointly'
+  | 'married_separately'
+  | 'head_of_household';
 
 export interface FIREInputs {
   currentAge: number;
@@ -150,7 +145,7 @@ export interface PayoffMonth {
 }
 
 export interface PayoffSchedule {
-  strategy: "avalanche" | "snowball";
+  strategy: 'avalanche' | 'snowball';
   months: number;
   totalInterestPaid: number;
   payoffDate: Date;
@@ -171,7 +166,7 @@ export interface LifestyleDecision {
   label: string;
   description: string;
   monthlySavings: number;
-  category: "food" | "transport" | "housing" | "subscriptions" | "income" | "investing";
+  category: 'food' | 'transport' | 'housing' | 'subscriptions' | 'income' | 'investing';
 }
 
 export interface DecisionImpact {

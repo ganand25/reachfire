@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { Info } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useRef } from 'react';
+import { Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface InfoTooltipProps {
   term: string;
@@ -22,8 +22,8 @@ export function InfoTooltip({ term, explanation }: InfoTooltipProps): React.JSX.
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
 
   return (
@@ -33,9 +33,9 @@ export function InfoTooltip({ term, explanation }: InfoTooltipProps): React.JSX.
         onClick={() => setOpen((prev) => !prev)}
         aria-label={`Info about ${term}`}
         className={cn(
-          "ml-1 inline-flex items-center justify-center rounded-full p-0.5",
-          "text-muted-foreground hover:text-foreground transition-colors",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          'ml-1 inline-flex items-center justify-center rounded-full p-0.5',
+          'text-muted-foreground hover:text-foreground transition-colors',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50'
         )}
       >
         <Info className="h-3.5 w-3.5" />
@@ -45,9 +45,9 @@ export function InfoTooltip({ term, explanation }: InfoTooltipProps): React.JSX.
         <span
           role="tooltip"
           className={cn(
-            "absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2",
-            "max-w-xs rounded-lg border border-border bg-popover p-3 shadow-lg",
-            "text-sm text-popover-foreground"
+            'absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2',
+            'max-w-xs rounded-lg border border-border bg-popover p-3 shadow-lg',
+            'text-sm text-popover-foreground'
           )}
         >
           <span className="font-semibold">{term}</span>

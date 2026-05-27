@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useCallback, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { useCallback, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CurrencyInputProps {
   label: React.ReactNode;
@@ -17,12 +17,12 @@ interface CurrencyInputProps {
 }
 
 function formatDisplay(value: number): string {
-  if (value === 0) return "";
-  return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (value === 0) return '';
+  return value.toLocaleString('en-US', { maximumFractionDigits: 0 });
 }
 
 function parseInput(raw: string): number {
-  const cleaned = raw.replace(/[^0-9.]/g, "");
+  const cleaned = raw.replace(/[^0-9.]/g, '');
   const parsed = parseFloat(cleaned);
   return isNaN(parsed) ? 0 : parsed;
 }
@@ -31,21 +31,21 @@ export function CurrencyInput({
   label,
   value,
   onChange,
-  placeholder = "0",
+  placeholder = '0',
   hint,
   className,
-  prefix = "$",
+  prefix = '$',
   suffix,
   min = 0,
   max,
 }: CurrencyInputProps): React.JSX.Element {
   const [focused, setFocused] = useState(false);
-  const [rawValue, setRawValue] = useState("");
+  const [rawValue, setRawValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFocus = useCallback(() => {
     setFocused(true);
-    setRawValue(value > 0 ? String(value) : "");
+    setRawValue(value > 0 ? String(value) : '');
   }, [value]);
 
   const handleBlur = useCallback(() => {
@@ -54,25 +54,25 @@ export function CurrencyInput({
     const clamped = max !== undefined ? Math.min(parsed, max) : parsed;
     const final = Math.max(min, clamped);
     onChange(final);
-    setRawValue("");
+    setRawValue('');
   }, [rawValue, onChange, min, max]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9.]/g, "");
+    const raw = e.target.value.replace(/[^0-9.]/g, '');
     setRawValue(raw);
   }, []);
 
   const displayValue = focused ? rawValue : formatDisplay(value);
 
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn('space-y-1.5', className)}>
       <label className="text-sm font-medium text-foreground">{label}</label>
       <div
         className={cn(
-          "flex items-center rounded-lg border bg-background px-3 py-2 transition-colors",
+          'flex items-center rounded-lg border bg-background px-3 py-2 transition-colors',
           focused
-            ? "border-primary ring-1 ring-primary/30"
-            : "border-border hover:border-muted-foreground/50"
+            ? 'border-primary ring-1 ring-primary/30'
+            : 'border-border hover:border-muted-foreground/50'
         )}
       >
         {prefix && (

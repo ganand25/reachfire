@@ -1,4 +1,4 @@
-import type { FilingStatus } from "@/types/retirement";
+import type { FilingStatus } from '@/types/retirement';
 
 export interface TaxBracket {
   min: number;
@@ -7,7 +7,7 @@ export interface TaxBracket {
 }
 
 const SINGLE_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 11925, rate: 0.10 },
+  { min: 0, max: 11925, rate: 0.1 },
   { min: 11925, max: 48475, rate: 0.12 },
   { min: 48475, max: 103350, rate: 0.22 },
   { min: 103350, max: 197300, rate: 0.24 },
@@ -17,7 +17,7 @@ const SINGLE_BRACKETS: TaxBracket[] = [
 ];
 
 const MARRIED_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 23850, rate: 0.10 },
+  { min: 0, max: 23850, rate: 0.1 },
   { min: 23850, max: 96950, rate: 0.12 },
   { min: 96950, max: 206700, rate: 0.22 },
   { min: 206700, max: 394600, rate: 0.24 },
@@ -37,15 +37,15 @@ export const STANDARD_DEDUCTION: Record<FilingStatus, number> = {
 };
 
 const SINGLE_LTCG_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 48350, rate: 0.00 },
+  { min: 0, max: 48350, rate: 0.0 },
   { min: 48350, max: 533400, rate: 0.15 },
-  { min: 533400, max: Infinity, rate: 0.20 },
+  { min: 533400, max: Infinity, rate: 0.2 },
 ];
 
 const MARRIED_LTCG_BRACKETS: TaxBracket[] = [
-  { min: 0, max: 96700, rate: 0.00 },
+  { min: 0, max: 96700, rate: 0.0 },
   { min: 96700, max: 600050, rate: 0.15 },
-  { min: 600050, max: Infinity, rate: 0.20 },
+  { min: 600050, max: Infinity, rate: 0.2 },
 ];
 
 export const LTCG_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
@@ -55,11 +55,34 @@ export const LTCG_BRACKETS: Record<FilingStatus, TaxBracket[]> = {
 
 // SECURE Act 2.0 Uniform Lifetime Table (age -> distribution period)
 export const RMD_TABLE: Record<number, number> = {
-  73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0,
-  79: 21.1, 80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8,
-  85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7, 89: 12.9, 90: 12.2,
-  91: 11.5, 92: 10.8, 93: 10.1, 94: 9.5, 95: 8.9, 96: 8.4,
-  97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4,
+  73: 26.5,
+  74: 25.5,
+  75: 24.6,
+  76: 23.7,
+  77: 22.9,
+  78: 22.0,
+  79: 21.1,
+  80: 20.2,
+  81: 19.4,
+  82: 18.5,
+  83: 17.7,
+  84: 16.8,
+  85: 16.0,
+  86: 15.2,
+  87: 14.4,
+  88: 13.7,
+  89: 12.9,
+  90: 12.2,
+  91: 11.5,
+  92: 10.8,
+  93: 10.1,
+  94: 9.5,
+  95: 8.9,
+  96: 8.4,
+  97: 7.8,
+  98: 7.3,
+  99: 6.8,
+  100: 6.4,
 };
 
 export const ANNUAL_GIFT_EXCLUSION = 19000;
@@ -111,19 +134,15 @@ export function calculateSocialSecurityTaxable(
   status: FilingStatus
 ): number {
   const provisionalIncome = otherIncome + ssIncome * 0.5;
-  const thresholds = status === "single"
-    ? { low: 25000, high: 34000 }
-    : { low: 32000, high: 44000 };
+  const thresholds =
+    status === 'single' ? { low: 25000, high: 34000 } : { low: 32000, high: 44000 };
 
   if (provisionalIncome <= thresholds.low) return 0;
   if (provisionalIncome <= thresholds.high) {
     return Math.min(ssIncome * 0.5, (provisionalIncome - thresholds.low) * 0.5);
   }
   const base = Math.min(ssIncome * 0.5, (thresholds.high - thresholds.low) * 0.5);
-  const additional = Math.min(
-    ssIncome * 0.85 - base,
-    (provisionalIncome - thresholds.high) * 0.85
-  );
+  const additional = Math.min(ssIncome * 0.85 - base, (provisionalIncome - thresholds.high) * 0.85);
   return Math.min(base + additional, ssIncome * 0.85);
 }
 

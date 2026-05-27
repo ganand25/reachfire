@@ -3,16 +3,13 @@
  * All functions are pure (no side effects) with explicit return types
  */
 
-import type { FIREType, YearlyProjection } from "@/types/fire";
+import type { FIREType, YearlyProjection } from '@/types/fire';
 
 /**
  * Calculate the FIRE number (target portfolio value)
  * Based on the Trinity Study: 25× expenses = 4% safe withdrawal rate
  */
-export function fireNumber(
-  annualExpenses: number,
-  withdrawalRate: number = 0.04
-): number {
+export function fireNumber(annualExpenses: number, withdrawalRate: number = 0.04): number {
   if (withdrawalRate <= 0) return Infinity;
   return annualExpenses / withdrawalRate;
 }
@@ -69,19 +66,13 @@ export function projectedPortfolio(
 
   // FV = PV * (1+r)^n + PMT * ((1+r)^n - 1) / r
   const growthFactor = Math.pow(1 + monthlyReturn, months);
-  return (
-    currentValue * growthFactor +
-    monthlySavings * ((growthFactor - 1) / monthlyReturn)
-  );
+  return currentValue * growthFactor + monthlySavings * ((growthFactor - 1) / monthlyReturn);
 }
 
 /**
  * Calculate the FIRE date given years to FIRE
  */
-export function fireDate(
-  yearsToFireValue: number,
-  currentDate: Date = new Date()
-): Date {
+export function fireDate(yearsToFireValue: number, currentDate: Date = new Date()): Date {
   const date = new Date(currentDate);
   const totalMonths = Math.round(yearsToFireValue * 12);
   date.setMonth(date.getMonth() + totalMonths);
@@ -131,10 +122,7 @@ export function projectedGrowth(
 /**
  * Calculate savings rate as a percentage
  */
-export function savingsRate(
-  grossIncome: number,
-  totalExpenses: number
-): number {
+export function savingsRate(grossIncome: number, totalExpenses: number): number {
   if (grossIncome <= 0) return 0;
   const savings = grossIncome - totalExpenses;
   return Math.max(0, Math.min(100, (savings / grossIncome) * 100));
@@ -143,11 +131,7 @@ export function savingsRate(
 /**
  * Adjust an amount for inflation over time
  */
-export function inflationAdjust(
-  amount: number,
-  inflationRate: number,
-  years: number
-): number {
+export function inflationAdjust(amount: number, inflationRate: number, years: number): number {
   return amount / Math.pow(1 + inflationRate, years);
 }
 
@@ -155,26 +139,20 @@ export function inflationAdjust(
  * Calculate real return rate (Fisher equation)
  * Real return = (1 + nominal) / (1 + inflation) - 1
  */
-export function realReturnRate(
-  nominalReturn: number,
-  inflationRate: number
-): number {
+export function realReturnRate(nominalReturn: number, inflationRate: number): number {
   return (1 + nominalReturn) / (1 + inflationRate) - 1;
 }
 
 /**
  * Classify FIRE type based on annual expenses and FIRE number
  */
-export function classifyFIREType(
-  annualExpenses: number,
-  _withdrawalRate: number = 0.04
-): FIREType {
+export function classifyFIREType(annualExpenses: number, _withdrawalRate: number = 0.04): FIREType {
   // Lean FIRE: < $40K/year
   // Regular FIRE: $40K–$100K/year
   // Fat FIRE: > $100K/year
-  if (annualExpenses < 40000) return "lean_fire";
-  if (annualExpenses <= 100000) return "regular_fire";
-  return "fat_fire";
+  if (annualExpenses < 40000) return 'lean_fire';
+  if (annualExpenses <= 100000) return 'regular_fire';
+  return 'fat_fire';
 }
 
 /**
@@ -242,13 +220,8 @@ export function expenseReductionImpact(
   },
   monthlyExpenseReduction: number
 ): { newYearsToFire: number; monthsEarlier: number; newFireNumber: number } {
-  const {
-    currentSavings,
-    monthlyIncome,
-    currentMonthlyExpenses,
-    annualReturn,
-    withdrawalRate,
-  } = currentParams;
+  const { currentSavings, monthlyIncome, currentMonthlyExpenses, annualReturn, withdrawalRate } =
+    currentParams;
 
   const currentAnnualExpenses = currentMonthlyExpenses * 12;
   const newAnnualExpenses = (currentMonthlyExpenses - monthlyExpenseReduction) * 12;
@@ -259,7 +232,12 @@ export function expenseReductionImpact(
   const currentFireNum = fireNumber(currentAnnualExpenses, withdrawalRate);
   const newFireNum = fireNumber(newAnnualExpenses, withdrawalRate);
 
-  const currentYears = yearsToFire(currentSavings, currentMonthlySavings, annualReturn, currentFireNum);
+  const currentYears = yearsToFire(
+    currentSavings,
+    currentMonthlySavings,
+    annualReturn,
+    currentFireNum
+  );
   const newYears = yearsToFire(currentSavings, newMonthlySavings, annualReturn, newFireNum);
 
   return {

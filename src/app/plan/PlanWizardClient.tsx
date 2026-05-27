@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { PageEnter } from "@/components/Animated";
-import { SliderInput } from "@/components/SliderInput";
-import { CurrencyInput } from "@/components/CurrencyInput";
-import { cn } from "@/lib/utils";
-import { WIZARD_GOALS, buildWizardParams } from "@/lib/wizard-config";
-import type { WizardGoal } from "@/lib/wizard-config";
+import { useState, useCallback, useMemo } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { PageEnter } from '@/components/Animated';
+import { SliderInput } from '@/components/SliderInput';
+import { CurrencyInput } from '@/components/CurrencyInput';
+import { cn } from '@/lib/utils';
+import { WIZARD_GOALS, buildWizardParams } from '@/lib/wizard-config';
+import type { WizardGoal } from '@/lib/wizard-config';
 
-const STEP_TITLES = ["Choose your goal", "Quick profile"] as const;
+const STEP_TITLES = ['Choose your goal', 'Quick profile'] as const;
 
 const slideVariants = {
   enter: (direction: number): { opacity: number; x: number } => ({
@@ -40,14 +40,14 @@ function StepIndicator({ currentStep }: { currentStep: number }): React.JSX.Elem
         <div key={title} className="flex items-center gap-2">
           <div
             className={cn(
-              "w-2 h-2 rounded-full transition-colors duration-300",
-              index === currentStep ? "bg-primary" : "bg-muted-foreground/30"
+              'w-2 h-2 rounded-full transition-colors duration-300',
+              index === currentStep ? 'bg-primary' : 'bg-muted-foreground/30'
             )}
           />
           <span
             className={cn(
-              "text-sm transition-colors duration-300",
-              index === currentStep ? "text-foreground font-medium" : "text-muted-foreground"
+              'text-sm transition-colors duration-300',
+              index === currentStep ? 'text-foreground font-medium' : 'text-muted-foreground'
             )}
           >
             {title}
@@ -74,15 +74,15 @@ function GoalCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-2xl border-2 border-border bg-card p-6 cursor-pointer",
-        "hover:border-primary/50 hover:shadow-md transition-all text-left w-full",
-        selected && "border-primary bg-primary/5 ring-2 ring-primary/20"
+        'rounded-2xl border-2 border-border bg-card p-6 cursor-pointer',
+        'hover:border-primary/50 hover:shadow-md transition-all text-left w-full',
+        selected && 'border-primary bg-primary/5 ring-2 ring-primary/20'
       )}
     >
       <div className="flex items-start gap-4">
         <div
           className={cn(
-            "flex items-center justify-center w-12 h-12 rounded-xl shrink-0",
+            'flex items-center justify-center w-12 h-12 rounded-xl shrink-0',
             goal.color
           )}
         >
@@ -90,9 +90,7 @@ function GoalCard({
         </div>
         <div className="space-y-1">
           <h3 className="font-semibold text-foreground">{goal.title}</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {goal.subtitle}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{goal.subtitle}</p>
         </div>
       </div>
     </button>
@@ -103,9 +101,9 @@ export function PlanWizardClient(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialGoalId = searchParams.get("goal");
+  const initialGoalId = searchParams.get('goal');
   const initialGoal = initialGoalId
-    ? WIZARD_GOALS.find((g) => g.id === initialGoalId) ?? null
+    ? (WIZARD_GOALS.find((g) => g.id === initialGoalId) ?? null)
     : null;
 
   const [step, setStep] = useState(initialGoal ? 1 : 0);
@@ -117,14 +115,11 @@ export function PlanWizardClient(): React.JSX.Element {
   const [currentSavings, setCurrentSavings] = useState(200_000);
   const [annualExpenses, setAnnualExpenses] = useState(50_000);
 
-  const handleGoalSelect = useCallback(
-    (goal: WizardGoal) => {
-      setSelectedGoal(goal);
-      setDirection(1);
-      setStep(1);
-    },
-    []
-  );
+  const handleGoalSelect = useCallback((goal: WizardGoal) => {
+    setSelectedGoal(goal);
+    setDirection(1);
+    setStep(1);
+  }, []);
 
   const handleBack = useCallback(() => {
     setDirection(-1);
@@ -212,7 +207,8 @@ export function PlanWizardClient(): React.JSX.Element {
                     Tell us a little about you
                   </h1>
                   <p className="text-muted-foreground">
-                    We&apos;ll pre-fill your calculator with these numbers. You can always adjust later.
+                    We&apos;ll pre-fill your calculator with these numbers. You can always adjust
+                    later.
                   </p>
                 </div>
               </div>
@@ -257,9 +253,9 @@ export function PlanWizardClient(): React.JSX.Element {
                     onClick={handleSubmit}
                     disabled={isSubmitDisabled}
                     className={cn(
-                      "gradient-ember text-white font-semibold px-8 py-3 rounded-xl glow-ember-sm",
-                      "flex items-center gap-2 transition-opacity",
-                      isSubmitDisabled && "opacity-50 cursor-not-allowed"
+                      'gradient-ember text-white font-semibold px-8 py-3 rounded-xl glow-ember-sm',
+                      'flex items-center gap-2 transition-opacity',
+                      isSubmitDisabled && 'opacity-50 cursor-not-allowed'
                     )}
                   >
                     Show My Results

@@ -4,10 +4,10 @@
  */
 
 export type FilingStatus =
-  | "single"
-  | "married_jointly"
-  | "married_separately"
-  | "head_of_household";
+  | 'single'
+  | 'married_jointly'
+  | 'married_separately'
+  | 'head_of_household';
 
 export interface TaxBracket {
   min: number;
@@ -31,7 +31,7 @@ export const STANDARD_DEDUCTION_2025: StandardDeduction = {
 
 export const TAX_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
   single: [
-    { min: 0, max: 11925, rate: 0.10 },
+    { min: 0, max: 11925, rate: 0.1 },
     { min: 11925, max: 48475, rate: 0.12 },
     { min: 48475, max: 103350, rate: 0.22 },
     { min: 103350, max: 197300, rate: 0.24 },
@@ -40,7 +40,7 @@ export const TAX_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
     { min: 626350, max: null, rate: 0.37 },
   ],
   married_jointly: [
-    { min: 0, max: 23850, rate: 0.10 },
+    { min: 0, max: 23850, rate: 0.1 },
     { min: 23850, max: 96950, rate: 0.12 },
     { min: 96950, max: 206700, rate: 0.22 },
     { min: 206700, max: 394600, rate: 0.24 },
@@ -49,7 +49,7 @@ export const TAX_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
     { min: 751600, max: null, rate: 0.37 },
   ],
   married_separately: [
-    { min: 0, max: 11925, rate: 0.10 },
+    { min: 0, max: 11925, rate: 0.1 },
     { min: 11925, max: 48475, rate: 0.12 },
     { min: 48475, max: 103350, rate: 0.22 },
     { min: 103350, max: 197300, rate: 0.24 },
@@ -58,7 +58,7 @@ export const TAX_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
     { min: 375800, max: null, rate: 0.37 },
   ],
   head_of_household: [
-    { min: 0, max: 17000, rate: 0.10 },
+    { min: 0, max: 17000, rate: 0.1 },
     { min: 17000, max: 64850, rate: 0.12 },
     { min: 64850, max: 103350, rate: 0.22 },
     { min: 103350, max: 197300, rate: 0.24 },
@@ -73,24 +73,24 @@ export const TAX_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
  */
 export const CAPITAL_GAINS_BRACKETS_2025: Record<FilingStatus, TaxBracket[]> = {
   single: [
-    { min: 0, max: 48350, rate: 0.00 },
+    { min: 0, max: 48350, rate: 0.0 },
     { min: 48350, max: 533400, rate: 0.15 },
-    { min: 533400, max: null, rate: 0.20 },
+    { min: 533400, max: null, rate: 0.2 },
   ],
   married_jointly: [
-    { min: 0, max: 96700, rate: 0.00 },
+    { min: 0, max: 96700, rate: 0.0 },
     { min: 96700, max: 600050, rate: 0.15 },
-    { min: 600050, max: null, rate: 0.20 },
+    { min: 600050, max: null, rate: 0.2 },
   ],
   married_separately: [
-    { min: 0, max: 48350, rate: 0.00 },
+    { min: 0, max: 48350, rate: 0.0 },
     { min: 48350, max: 300000, rate: 0.15 },
-    { min: 300000, max: null, rate: 0.20 },
+    { min: 300000, max: null, rate: 0.2 },
   ],
   head_of_household: [
-    { min: 0, max: 64750, rate: 0.00 },
+    { min: 0, max: 64750, rate: 0.0 },
     { min: 64750, max: 566200, rate: 0.15 },
-    { min: 566200, max: null, rate: 0.20 },
+    { min: 566200, max: null, rate: 0.2 },
   ],
 };
 

@@ -2,8 +2,8 @@
  * Withdrawal strategy simulations for retirement planning
  */
 
-import type { WithdrawalYearlyBalance, BacktestResult } from "@/types/fire";
-import { historicalReturns } from "@/lib/data/historicalReturns";
+import type { WithdrawalYearlyBalance, BacktestResult } from '@/types/fire';
+import { historicalReturns } from '@/lib/data/historicalReturns';
 
 /**
  * Fixed withdrawal rate strategy (e.g., 4% rule)
@@ -62,10 +62,7 @@ export function variablePercentage(
     const startBalance = portfolio;
     // Adjust rate based on years remaining (higher rate as portfolio shrinks timeline)
     const yearsRemaining = years - year + 1;
-    const vpwRate = Math.min(
-      ceilingRate,
-      Math.max(floorRate, 1 / yearsRemaining)
-    );
+    const vpwRate = Math.min(ceilingRate, Math.max(floorRate, 1 / yearsRemaining));
 
     const withdrawal = Math.min(portfolio * vpwRate, portfolio);
     portfolio -= withdrawal;

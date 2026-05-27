@@ -3,8 +3,8 @@
  * Coast FIRE: Save until a point where compound growth alone reaches the FIRE number
  */
 
-import type { CoastFIREResult } from "@/types/fire";
-import { fireNumber, projectedPortfolio } from "./core";
+import type { CoastFIREResult } from '@/types/fire';
+import { fireNumber, projectedPortfolio } from './core';
 
 /**
  * Calculate the portfolio needed today to coast to FIRE by retirement age
@@ -75,9 +75,7 @@ export function coastFireAge(
           returnRate,
           yearsOfSaving - 1
         );
-        const fraction =
-          (currentCoastNum - prevPortfolio) /
-          (portfolioAtAge - prevPortfolio);
+        const fraction = (currentCoastNum - prevPortfolio) / (portfolioAtAge - prevPortfolio);
         return age - 1 + Math.max(0, Math.min(1, fraction));
       }
       return age;

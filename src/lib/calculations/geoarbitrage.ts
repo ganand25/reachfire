@@ -3,9 +3,9 @@
  * Adjust FIRE number and timeline based on cost of living in different cities
  */
 
-import { citiesData, type CityData } from "@/lib/data/costOfLiving";
-import type { GeoarbitrageResult } from "@/types/fire";
-import { fireNumber, yearsToFire } from "./core";
+import { citiesData, type CityData } from '@/lib/data/costOfLiving';
+import type { GeoarbitrageResult } from '@/types/fire';
+import { fireNumber, yearsToFire } from './core';
 
 /**
  * Adjust FIRE number based on cost of living index
@@ -96,14 +96,14 @@ export function getCityById(cityId: string): CityData | null {
  * Get all domestic US cities
  */
 export function getDomesticCities(): CityData[] {
-  return citiesData.filter((c) => c.region === "domestic");
+  return citiesData.filter((c) => c.region === 'domestic');
 }
 
 /**
  * Get all international cities
  */
 export function getInternationalCities(): CityData[] {
-  return citiesData.filter((c) => c.region === "international");
+  return citiesData.filter((c) => c.region === 'international');
 }
 
 /**
@@ -114,13 +114,16 @@ export function filterCities(options: {
   englishSpeaking?: boolean;
   maxCostIndex?: number;
   minSafetyIndex?: number;
-  region?: "domestic" | "international";
+  region?: 'domestic' | 'international';
 }): CityData[] {
   return citiesData.filter((city) => {
-    if (options.visaFriendly !== undefined && city.visaFriendly !== options.visaFriendly) return false;
-    if (options.englishSpeaking !== undefined && city.englishSpeaking !== options.englishSpeaking) return false;
+    if (options.visaFriendly !== undefined && city.visaFriendly !== options.visaFriendly)
+      return false;
+    if (options.englishSpeaking !== undefined && city.englishSpeaking !== options.englishSpeaking)
+      return false;
     if (options.maxCostIndex !== undefined && city.costIndex > options.maxCostIndex) return false;
-    if (options.minSafetyIndex !== undefined && city.safetyIndex < options.minSafetyIndex) return false;
+    if (options.minSafetyIndex !== undefined && city.safetyIndex < options.minSafetyIndex)
+      return false;
     if (options.region !== undefined && city.region !== options.region) return false;
     return true;
   });

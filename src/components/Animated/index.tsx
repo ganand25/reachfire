@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -30,7 +30,7 @@ export function FadeUp({ children, className, delay = 0 }: AnimProps): React.JSX
       variants={fadeUp}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
+      viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1], delay }}
     >
       {children}
@@ -45,22 +45,25 @@ export function FadeIn({ children, className, delay = 0 }: AnimProps): React.JSX
       variants={fadeIn}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.4, ease: "easeOut", delay }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.4, ease: 'easeOut', delay }}
     >
       {children}
     </motion.div>
   );
 }
 
-export function StaggerContainer({ children, className }: Omit<AnimProps, "delay">): React.JSX.Element {
+export function StaggerContainer({
+  children,
+  className,
+}: Omit<AnimProps, 'delay'>): React.JSX.Element {
   return (
     <motion.div
       className={className}
       variants={stagger}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: "-40px" }}
+      viewport={{ once: true, margin: '-40px' }}
     >
       {children}
     </motion.div>
@@ -68,16 +71,20 @@ export function StaggerContainer({ children, className }: Omit<AnimProps, "delay
 }
 
 /** Item to use inside StaggerContainer */
-export function StaggerItem({ children, className }: Omit<AnimProps, "delay">): React.JSX.Element {
+export function StaggerItem({ children, className }: Omit<AnimProps, 'delay'>): React.JSX.Element {
   return (
-    <motion.div className={className} variants={fadeUp} transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}>
+    <motion.div
+      className={className}
+      variants={fadeUp}
+      transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+    >
       {children}
     </motion.div>
   );
 }
 
 /** Wraps a page with a subtle fade+slide-up entrance */
-export function PageEnter({ children, className }: Omit<AnimProps, "delay">): React.JSX.Element {
+export function PageEnter({ children, className }: Omit<AnimProps, 'delay'>): React.JSX.Element {
   return (
     <motion.div
       className={className}
@@ -91,12 +98,9 @@ export function PageEnter({ children, className }: Omit<AnimProps, "delay">): Re
 }
 
 /** Hover lift effect — wrap around any card */
-export function HoverCard({ children, className }: Omit<AnimProps, "delay">): React.JSX.Element {
+export function HoverCard({ children, className }: Omit<AnimProps, 'delay'>): React.JSX.Element {
   return (
-    <motion.div
-      className={className}
-      whileHover={{ y: -3, transition: { duration: 0.15 } }}
-    >
+    <motion.div className={className} whileHover={{ y: -3, transition: { duration: 0.15 } }}>
       {children}
     </motion.div>
   );

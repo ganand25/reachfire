@@ -26,15 +26,12 @@ function getExpectedContributionPercent(fplRatio: number): number {
 // Using national average: ~$600/mo for single, ~$1200/mo for family
 function getBenchmarkPremium(householdSize: number, age: number): number {
   const ageFactor = age < 30 ? 0.8 : age < 40 ? 1.0 : age < 50 ? 1.2 : age < 60 ? 1.5 : 1.7;
-  const basePremium = householdSize <= 1 ? 7200 : householdSize <= 2 ? 14400 : 14400 + (householdSize - 2) * 3600;
+  const basePremium =
+    householdSize <= 1 ? 7200 : householdSize <= 2 ? 14400 : 14400 + (householdSize - 2) * 3600;
   return basePremium * ageFactor;
 }
 
-export function calculateACASubsidy(
-  magi: number,
-  age: number,
-  householdSize: number
-): number {
+export function calculateACASubsidy(magi: number, age: number, householdSize: number): number {
   if (age >= 65) return 0;
   const fpl = getFPL(householdSize);
   const fplRatio = magi / fpl;
@@ -47,10 +44,11 @@ export function calculateACASubsidy(
 
 // IRMAA surcharges for Medicare Part B + Part D (2025)
 // Based on MAGI from 2 years prior
-export function calculateIRMAA(magi: number, filingStatus: "single" | "married"): number {
-  const thresholds = filingStatus === "single"
-    ? [103000, 129000, 161000, 193000, 500000]
-    : [206000, 258000, 322000, 386000, 750000];
+export function calculateIRMAA(magi: number, filingStatus: 'single' | 'married'): number {
+  const thresholds =
+    filingStatus === 'single'
+      ? [103000, 129000, 161000, 193000, 500000]
+      : [206000, 258000, 322000, 386000, 750000];
 
   // Monthly Part B + Part D surcharges per tier
   const surcharges = [0, 2340, 5460, 8568, 11688, 12780];
@@ -62,9 +60,6 @@ export function calculateIRMAA(magi: number, filingStatus: "single" | "married")
 }
 
 // SECURE Act: non-spouse heirs must drain inherited IRA within 10 years
-export function calculateHeirTax(
-  traditionalBalance: number,
-  heirBracket: number
-): number {
+export function calculateHeirTax(traditionalBalance: number, heirBracket: number): number {
   return traditionalBalance * heirBracket;
 }
