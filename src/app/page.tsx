@@ -237,9 +237,9 @@ export default function HomePage(): React.JSX.Element {
               },
               {
                 icon: Brain,
-                title: 'AI FIRE Advisor',
+                title: 'AI FIRE Advisor — Coming Soon',
                 description:
-                  'Personalized insights: "Cutting $200/mo moves your FIRE date 14 months closer."',
+                  'Personalized insights powered by AI. "Cutting $200/mo moves your FIRE date 14 months closer."',
               },
             ].map((item) => (
               <StaggerItem key={item.title} className="flex gap-4">
