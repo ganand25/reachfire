@@ -124,7 +124,7 @@ export function FamilyTaxClient(): React.JSX.Element {
 
   return (
     <PageEnter>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
+      <div id="family-tax-report" className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
@@ -135,7 +135,7 @@ export function FamilyTaxClient(): React.JSX.Element {
               Most tools optimize your lifetime tax — we optimize your family&apos;s lifetime tax.
             </p>
           </div>
-          <ExportBar onExportCSV={handleExportCSV} onReset={clearInputs} className="no-print shrink-0" />
+          <ExportBar onExportCSV={handleExportCSV} onReset={clearInputs} pdfElementId="family-tax-report" pdfFilename="reachfire-family-tax-report" className="no-print shrink-0" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

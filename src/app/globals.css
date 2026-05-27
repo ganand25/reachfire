@@ -240,3 +240,66 @@
     color: #c44 !important;
   }
 }
+
+/* PDF export mode — applied temporarily during html2pdf capture */
+.pdf-export-mode {
+  background: white !important;
+  color: #1a1a1a !important;
+  padding: 20px !important;
+}
+.pdf-export-mode .no-print {
+  display: none !important;
+}
+.pdf-export-mode .rounded-xl,
+.pdf-export-mode .rounded-lg {
+  border-radius: 4px !important;
+}
+.pdf-export-mode .border-border {
+  border-color: #ddd !important;
+}
+.pdf-export-mode .bg-card {
+  background: #fafafa !important;
+}
+.pdf-export-mode .bg-muted\/30,
+.pdf-export-mode .bg-muted\/50,
+.pdf-export-mode .bg-muted\/20 {
+  background: #f5f5f5 !important;
+}
+.pdf-export-mode .text-muted-foreground {
+  color: #666 !important;
+}
+.pdf-export-mode .text-primary {
+  color: #c44 !important;
+}
+.pdf-export-mode .text-emerald-400 {
+  color: #059669 !important;
+}
+.pdf-export-mode .text-destructive {
+  color: #c44 !important;
+}
+.pdf-export-mode .text-amber-400 {
+  color: #b45309 !important;
+}
+.pdf-export-mode .gradient-ember {
+  background: #c44 !important;
+  box-shadow: none !important;
+}
+.pdf-export-mode .glow-ember,
+.pdf-export-mode .glow-ember-sm {
+  box-shadow: none !important;
+}
+.pdf-export-mode table {
+  font-size: 10px !important;
+}
+.pdf-export-mode .bg-emerald-500\/5,
+.pdf-export-mode .bg-primary\/5,
+.pdf-export-mode .bg-amber-500\/5 {
+  background: #f0fdf4 !important;
+}
+.pdf-export-mode .border-emerald-500\/30 {
+  border-color: #059669 !important;
+}
+.pdf-export-mode .border-primary\/30,
+.pdf-export-mode .border-primary\/20 {
+  border-color: #c44 !important;
+}
