@@ -20,6 +20,7 @@ export function ExportBar({
   className,
 }: ExportBarProps): React.JSX.Element {
   const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfError, setPdfError] = useState(false);
 
   async function handlePDF(): Promise<void> {
     if (!pdfElementId || !pdfFilename) {
@@ -27,9 +28,13 @@ export function ExportBar({
       return;
     }
     setPdfLoading(true);
+    setPdfError(false);
     try {
       const { downloadPDF } = await import('@/lib/pdf');
       await downloadPDF(pdfElementId, pdfFilename);
+    } catch {
+      setPdfError(true);
+      setTimeout(() => setPdfError(false), 3000);
     } finally {
       setPdfLoading(false);
     }
@@ -47,10 +52,15 @@ export function ExportBar({
       <button
         onClick={handlePDF}
         disabled={pdfLoading}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors disabled:opacity-50"
+        className={cn(
+          'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors disabled:opacity-50',
+          pdfError
+            ? 'border-destructive/30 text-destructive'
+            : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30',
+        )}
       >
         <FileText className="w-3.5 h-3.5" />
-        {pdfLoading ? 'Generating…' : 'PDF'}
+        {pdfLoading ? 'Generating…' : pdfError ? 'Failed — try Print' : 'PDF'}
       </button>
       <button
         onClick={() => window.print()}
