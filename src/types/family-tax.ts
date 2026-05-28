@@ -62,8 +62,12 @@ export interface FamilyTaxStrategyResult {
   parentLifetimeTax: number;
   totalAcaSubsidies: number;
   heirTaxAtDeath: number;
+  // totalFamilyTax = parentLifetimeTax + heirTaxAtDeath (ACA tracked separately as a bonus)
   totalFamilyTax: number;
   rothPercentToHeirs: number;
+  pretaxInheritance: number;
+  afterTaxInheritance: number;
+  inheritanceKeptPercent: number;
   balanceAtDeath: {
     traditional: number;
     roth: number;

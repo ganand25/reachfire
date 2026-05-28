@@ -88,16 +88,19 @@ export function FamilyTaxClient(): React.JSX.Element {
   const best = strategies.reduce((a, b) => (a.totalFamilyTax < b.totalFamilyTax ? a : b));
   const worst = strategies.reduce((a, b) => (a.totalFamilyTax > b.totalFamilyTax ? a : b));
   const maxSavings = worst.totalFamilyTax - best.totalFamilyTax;
+  const savingsVsBest = selected.totalFamilyTax - best.totalFamilyTax;
 
+  // Ranked horizontal stacked bars: Your Tax + Heir Tax only (ACA shown separately as bonus).
   const barChartData = strategies
     .map((s) => ({
-      name: s.name.length > 18 ? s.name.slice(0, 18) + '…' : s.name,
+      id: s.id,
+      name: s.name.length > 22 ? s.name.slice(0, 22) + '…' : s.name,
       fullName: s.name,
-      'Parent Tax': Math.round(s.parentLifetimeTax),
+      'Your Tax': Math.round(s.parentLifetimeTax),
       'Heir Tax': Math.round(s.heirTaxAtDeath),
-      'ACA Subsidies': -Math.round(s.totalAcaSubsidies),
       total: Math.round(s.totalFamilyTax),
       isBest: s.id === best.id,
+      isWorst: s.id === worst.id,
     }))
     .sort((a, b) => a.total - b.total);
 
@@ -155,11 +158,12 @@ export function FamilyTaxClient(): React.JSX.Element {
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl sm:text-4xl font-bold mb-2">
-              Total Family Tax Optimizer
+              Lifetime Family Tax
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              The only FIRE calculator that quantifies what your kids will pay. Most tools optimize
-              your lifetime tax — we optimize your family&apos;s lifetime tax.
+              <strong className="text-foreground">Your tax + Heir tax</strong>, across every
+              strategy. If you skip Roth conversions, your Traditional IRA keeps growing — and your
+              heirs inherit the tax bill.
             </p>
           </div>
           <ExportBar
@@ -348,48 +352,89 @@ export function FamilyTaxClient(): React.JSX.Element {
 
           {/* ── Results ── */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Hero savings */}
-            {maxSavings > 0 && (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <TrendingDown className="w-5 h-5 text-emerald-400" />
+            {/* Hero: explicit Your + Heir = Family math for the selected strategy */}
+            <div
+              className={cn(
+                'rounded-xl border p-5',
+                selected.id === best.id
+                  ? 'border-emerald-500/30 bg-emerald-500/5'
+                  : 'border-border bg-card'
+              )}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                      Selected strategy
+                    </p>
+                    {selected.id === best.id && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 font-medium">
+                        LOWEST
+                      </span>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-lg">
-                      Save up to <span className="text-emerald-400">{formatMoney(maxSavings)}</span>{' '}
-                      in total family taxes
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      The <strong>{best.name}</strong> strategy costs your family{' '}
-                      {formatMoney(best.totalFamilyTax)} total vs.{' '}
-                      {formatMoney(worst.totalFamilyTax)} with {worst.name}.
-                      {best.rothPercentToHeirs > 0.5 &&
-                        ` ${Math.round(best.rothPercentToHeirs * 100)}% of your legacy goes to heirs tax-free via Roth.`}
-                    </p>
-                    <button
-                      onClick={() => setSelectedStrategy(best.id)}
-                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg gradient-ember text-white font-semibold text-sm shadow-md hover:opacity-90 transition-opacity glow-ember-sm"
-                    >
-                      <Zap className="w-4 h-4" />
-                      Show Best Strategy
-                    </button>
+                  <h2 className="font-display text-xl font-bold mb-3">{selected.name}</h2>
+                  <div className="space-y-1.5 text-sm font-mono tabular-nums max-w-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Your lifetime tax</span>
+                      <span>{formatMoney(selected.parentLifetimeTax)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">+ Heir tax at death</span>
+                      <span
+                        className={selected.heirTaxAtDeath > 0 ? 'text-amber-400' : undefined}
+                      >
+                        {formatMoney(selected.heirTaxAtDeath)}
+                      </span>
+                    </div>
+                    <div className="border-t border-border/60 pt-1.5 flex justify-between font-bold text-base">
+                      <span>= Family tax</span>
+                      <span>{formatMoney(selected.totalFamilyTax)}</span>
+                    </div>
+                    {selected.totalAcaSubsidies > 0 && (
+                      <div className="flex justify-between text-xs text-emerald-400 pt-0.5">
+                        <span>+ ACA subsidy bonus</span>
+                        <span>{formatMoney(selected.totalAcaSubsidies)}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
+                {selected.id !== best.id && maxSavings > 0 && (
+                  <div className="shrink-0 sm:text-right space-y-2">
+                    <div className="inline-flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3">
+                      <TrendingDown className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                      <div className="text-left">
+                        <p className="text-xs text-muted-foreground">
+                          Save vs. <strong className="text-foreground">{best.name}</strong>
+                        </p>
+                        <p className="font-bold text-emerald-400 text-lg leading-tight">
+                          {formatMoney(savingsVsBest)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setSelectedStrategy(best.id)}
+                      className="block w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg gradient-ember text-white font-semibold text-xs shadow-md hover:opacity-90 transition-opacity"
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      Switch to best
+                    </button>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <StatCard
-                label="Total Family Tax"
+                label="Family Tax"
                 value={selected.totalFamilyTax}
                 format="currency"
                 size="sm"
                 glow={selected.id === best.id}
               />
               <StatCard
-                label="Parent Tax"
+                label="Your Tax"
                 value={selected.parentLifetimeTax}
                 format="currency"
                 size="sm"
@@ -399,22 +444,44 @@ export function FamilyTaxClient(): React.JSX.Element {
                 value={selected.heirTaxAtDeath}
                 format="currency"
                 size="sm"
+                trend={selected.heirTaxAtDeath > 0 ? 'down' : 'neutral'}
               />
               <StatCard
-                label="ACA Subsidies"
-                value={selected.totalAcaSubsidies}
-                format="currency"
+                label="Heirs Keep"
+                value={selected.inheritanceKeptPercent * 100}
+                format="decimal"
+                decimals={0}
+                suffix="%"
                 size="sm"
-                trend={selected.totalAcaSubsidies > 0 ? 'up' : 'neutral'}
+                subtitle={formatMoney(selected.afterTaxInheritance)}
+                trend="up"
               />
             </div>
 
-            {/* Stacked bar chart */}
+            {/* Ranked lifetime family tax chart */}
             <div>
-              <h2 className="font-semibold text-sm mb-3">Family Tax Comparison</h2>
+              <div className="flex items-end justify-between mb-3 gap-2 flex-wrap">
+                <div>
+                  <h2 className="font-semibold text-sm">Lifetime Family Tax — Ranked</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Each bar = your tax + heir tax. Sorted lowest first.
+                  </p>
+                </div>
+                {maxSavings > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    Spread:{' '}
+                    <span className="font-bold text-emerald-400">{formatMoney(maxSavings)}</span>{' '}
+                    between best and worst
+                  </p>
+                )}
+              </div>
               <div className="rounded-xl border border-border bg-card p-4">
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={barChartData} layout="vertical" margin={{ left: 10, right: 50 }}>
+                <ResponsiveContainer width="100%" height={Math.max(220, barChartData.length * 48)}>
+                  <BarChart
+                    data={barChartData}
+                    layout="vertical"
+                    margin={{ left: 10, right: 80, top: 8, bottom: 8 }}
+                  >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke="var(--border)"
@@ -422,18 +489,19 @@ export function FamilyTaxClient(): React.JSX.Element {
                     />
                     <XAxis
                       type="number"
-                      tickFormatter={(v: number) => formatMoney(Math.abs(v))}
+                      tickFormatter={(v: number) => formatMoney(v)}
                       tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                     />
                     <YAxis
                       type="category"
                       dataKey="name"
-                      width={130}
+                      width={150}
                       tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
                     />
                     <Tooltip
+                      cursor={{ fill: 'var(--muted)', opacity: 0.3 }}
                       formatter={(v: number | undefined) =>
-                        v !== undefined ? formatMoney(Math.abs(v)) : ''
+                        v !== undefined ? formatMoney(v) : ''
                       }
                       contentStyle={{
                         backgroundColor: 'var(--card)',
@@ -443,22 +511,103 @@ export function FamilyTaxClient(): React.JSX.Element {
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: '12px' }} />
-                    <Bar dataKey="Parent Tax" stackId="a" fill="oklch(0.65 0.20 15 / 0.7)">
+                    <Bar
+                      dataKey="Your Tax"
+                      stackId="a"
+                      fill="oklch(0.62 0.18 35)"
+                      onClick={(d: { id?: string }) => d?.id && setSelectedStrategy(d.id)}
+                    >
                       {barChartData.map((entry, i) => (
                         <Cell
-                          key={i}
+                          key={`your-${i}`}
+                          cursor="pointer"
                           fill={
                             entry.isBest
-                              ? 'oklch(0.72 0.20 145 / 0.7)'
-                              : 'oklch(0.65 0.20 15 / 0.7)'
+                              ? 'oklch(0.65 0.20 145)'
+                              : entry.isWorst
+                                ? 'oklch(0.60 0.22 25)'
+                                : 'oklch(0.62 0.18 35)'
                           }
+                          fillOpacity={entry.id === selected.id ? 1 : 0.75}
                         />
                       ))}
                     </Bar>
-                    <Bar dataKey="Heir Tax" stackId="a" fill="oklch(0.68 0.18 260 / 0.7)" />
-                    <Bar dataKey="ACA Subsidies" stackId="a" fill="oklch(0.72 0.20 145 / 0.5)" />
+                    <Bar
+                      dataKey="Heir Tax"
+                      stackId="a"
+                      fill="oklch(0.72 0.18 75)"
+                      onClick={(d: { id?: string }) => d?.id && setSelectedStrategy(d.id)}
+                    >
+                      {barChartData.map((entry, i) => (
+                        <Cell
+                          key={`heir-${i}`}
+                          cursor="pointer"
+                          fill={
+                            entry.isBest
+                              ? 'oklch(0.78 0.18 145)'
+                              : entry.isWorst
+                                ? 'oklch(0.70 0.22 50)'
+                                : 'oklch(0.72 0.18 75)'
+                          }
+                          fillOpacity={entry.id === selected.id ? 1 : 0.75}
+                        />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+                <p className="text-[11px] text-muted-foreground mt-2 text-center">
+                  Click a bar to select that strategy.
+                </p>
+              </div>
+            </div>
+
+            {/* Inheritance Impact — visceral "what your heirs actually keep" */}
+            <div>
+              <div className="mb-3">
+                <h2 className="font-semibold text-sm">What Your Heirs Actually Keep</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Of the total estate at death, after the IRS takes their cut from the inherited
+                  Traditional IRA.
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+                {[...strategies]
+                  .sort((a, b) => b.inheritanceKeptPercent - a.inheritanceKeptPercent)
+                  .map((s) => {
+                    const pct = s.inheritanceKeptPercent * 100;
+                    const isBest = s.id === best.id;
+                    return (
+                      <div key={s.id}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span
+                            className={cn(
+                              'font-medium',
+                              s.id === selected.id ? 'text-foreground' : 'text-muted-foreground'
+                            )}
+                          >
+                            {s.name}
+                          </span>
+                          <span className="tabular-nums">
+                            <span className="text-emerald-400 font-bold">
+                              {formatMoney(s.afterTaxInheritance)}
+                            </span>{' '}
+                            <span className="text-muted-foreground">
+                              ({pct.toFixed(0)}% kept)
+                            </span>
+                          </span>
+                        </div>
+                        <div className="h-2 rounded-full bg-muted overflow-hidden relative">
+                          <div
+                            className={cn(
+                              'h-full transition-all',
+                              isBest ? 'bg-emerald-400' : 'bg-primary/70'
+                            )}
+                            style={{ width: `${Math.min(100, pct)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
@@ -490,33 +639,43 @@ export function FamilyTaxClient(): React.JSX.Element {
                       </p>
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Parent tax</span>
+                          <span className="text-muted-foreground">Your tax</span>
                           <span className="tabular-nums">{formatMoney(s.parentLifetimeTax)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">Heir tax</span>
-                          <span className="tabular-nums">{formatMoney(s.heirTaxAtDeath)}</span>
+                          <span className="text-muted-foreground">+ Heir tax</span>
+                          <span
+                            className={cn(
+                              'tabular-nums',
+                              s.heirTaxAtDeath > 0 && 'text-amber-400'
+                            )}
+                          >
+                            {formatMoney(s.heirTaxAtDeath)}
+                          </span>
                         </div>
-                        {s.totalAcaSubsidies > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">ACA subsidies</span>
-                            <span className="tabular-nums text-emerald-400">
-                              -{formatMoney(s.totalAcaSubsidies)}
-                            </span>
-                          </div>
-                        )}
                         <div className="flex justify-between border-t border-border/50 pt-1 mt-1">
-                          <span className="font-semibold">Family total</span>
+                          <span className="font-semibold">= Family tax</span>
                           <span className="font-bold tabular-nums">
                             {formatMoney(s.totalFamilyTax)}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Roth to heirs</span>
-                          <span className="tabular-nums text-primary">
-                            {formatPercent(s.rothPercentToHeirs)}
+                        <div className="flex justify-between pt-1">
+                          <span className="text-muted-foreground">Heirs keep</span>
+                          <span className="tabular-nums text-emerald-400 font-medium">
+                            {formatMoney(s.afterTaxInheritance)}
+                            <span className="text-muted-foreground ml-1">
+                              ({Math.round(s.inheritanceKeptPercent * 100)}%)
+                            </span>
                           </span>
                         </div>
+                        {s.totalAcaSubsidies > 0 && (
+                          <div className="flex justify-between text-[11px] text-muted-foreground">
+                            <span>ACA bonus</span>
+                            <span className="tabular-nums text-emerald-400">
+                              +{formatMoney(s.totalAcaSubsidies)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </button>
                   );
@@ -622,20 +781,30 @@ export function FamilyTaxClient(): React.JSX.Element {
               )}
             </div>
 
-            {/* Educational callout */}
+            {/* The RMD trap — directly explains the scenario the user worried about */}
             <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-5 space-y-3">
               <h2 className="font-semibold text-sm flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-400" />
-                Why Most Calculators Miss This
+                The RMD Trap: Why &ldquo;Do Nothing&rdquo; Is Often The Worst
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                They stop at your death. The SECURE Act forces non-spouse heirs to drain inherited
-                IRAs within 10 years, typically during peak earning years at 28–32% brackets. A
-                &ldquo;tax-free&rdquo; legacy often isn&apos;t.
+                If you skip Roth conversions, your Traditional IRA keeps compounding tax-deferred
+                until age 73 — when the IRS forces Required Minimum Distributions. By death, the
+                balance can be enormous, and the{' '}
+                <strong className="text-foreground">SECURE Act</strong> requires non-spouse heirs to
+                drain it within 10 years at their marginal rate (often 24–32% during peak earning
+                years). At a {Math.round(inputs.heirTaxBracket * 100)}% heir bracket, the &ldquo;Do
+                Nothing&rdquo; strategy here would cost your family{' '}
+                <strong className="text-amber-400">
+                  {formatMoney(
+                    (strategies.find((s) => s.id === 'do-nothing')?.heirTaxAtDeath ?? 0)
+                  )}
+                </strong>{' '}
+                in heir tax alone.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                 <div className="rounded-lg bg-card border border-border p-3">
-                  <p className="font-semibold text-foreground mb-1">Parent Tax</p>
+                  <p className="font-semibold text-foreground mb-1">Your Tax</p>
                   <p className="text-muted-foreground">
                     Income tax on withdrawals, Roth conversions, RMDs, SS taxation, plus IRMAA
                     surcharges after 65.
@@ -644,15 +813,15 @@ export function FamilyTaxClient(): React.JSX.Element {
                 <div className="rounded-lg bg-card border border-border p-3">
                   <p className="font-semibold text-foreground mb-1">Heir Tax</p>
                   <p className="text-muted-foreground">
-                    Your heirs pay their marginal rate on inherited Traditional IRA — drained over
-                    10 years per SECURE Act.
+                    Heir&apos;s marginal rate × Traditional IRA balance at your death. Roth and
+                    taxable brokerage pass tax-free (step-up basis).
                   </p>
                 </div>
                 <div className="rounded-lg bg-card border border-border p-3">
-                  <p className="font-semibold text-foreground mb-1">ACA Subsidies</p>
+                  <p className="font-semibold text-foreground mb-1">ACA Bonus (separate)</p>
                   <p className="text-muted-foreground">
-                    Pre-Medicare, low MAGI qualifies for premium subsidies. Aggressive conversions
-                    can wipe these out.
+                    Pre-Medicare, low MAGI qualifies for premium subsidies. Shown separately so it
+                    doesn&apos;t hide the heir cost.
                   </p>
                 </div>
               </div>
@@ -662,24 +831,24 @@ export function FamilyTaxClient(): React.JSX.Element {
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <h2 className="font-semibold text-sm flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary" />
-                Total Family Tax = Parent Tax + Heir Tax − ACA Subsidies
+                Family Tax = Your Tax + Heir Tax
               </h2>
               <div className="text-xs text-muted-foreground space-y-2">
                 <p>
-                  <strong className="text-foreground">Roth conversions are a tradeoff:</strong> You
-                  pay more parent tax now, but your heirs receive tax-free Roth money instead of
-                  taxable Traditional IRA. The &ldquo;right&rdquo; amount depends on your bracket
-                  vs. your heir&apos;s bracket.
-                </p>
-                <p>
-                  <strong className="text-foreground">ACA subsidy cliff:</strong> Before Medicare at
-                  65, keeping MAGI under 400% FPL preserves ACA premium subsidies worth $5K–$20K/yr.
-                  Aggressive Roth conversions can blow past this limit.
+                  <strong className="text-foreground">Roth conversions trade your tax for theirs:</strong>{' '}
+                  You pay more now (filling your 12/22/24% bracket), but your heirs receive tax-free
+                  Roth dollars instead of fully taxable Traditional IRA. The math wins when your
+                  bracket is at or below your heir&apos;s expected bracket.
                 </p>
                 <p>
                   <strong className="text-foreground">Step-up in basis:</strong> Taxable brokerage
-                  accounts get a stepped-up cost basis at death, wiping out all unrealized gains.
-                  This makes taxable accounts more heir-friendly than Traditional IRAs.
+                  gets a reset cost basis at death — all unrealized gains evaporate. That&apos;s why
+                  it counts as &ldquo;heir-friendly&rdquo; here.
+                </p>
+                <p>
+                  <strong className="text-foreground">ACA subsidies</strong> are tracked separately
+                  as a bonus, not subtracted from the family tax total — otherwise a strategy with
+                  big subsidies can mask a big heir bill.
                 </p>
               </div>
             </div>

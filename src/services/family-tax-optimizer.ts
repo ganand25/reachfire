@@ -81,6 +81,81 @@ function makeYear(age: number): FamilyTaxYearResult {
 
 type StrategyFn = (inputs: FamilyTaxInputs, start: Balances) => FamilyTaxYearResult[];
 
+// Strategy 0: Do Nothing — RMDs only. Live off taxable/cash first, then trad as needed, Roth last.
+// No proactive Roth conversions. Designed to expose the RMD/heir-tax trap.
+const simulateDoNothing: StrategyFn = (inputs, start) => {
+  const years: FamilyTaxYearResult[] = [];
+  let { trad, roth, taxable, cash } = start;
+  let costBasis = inputs.taxableCostBasisPercent / 100;
+
+  for (let age = inputs.retirementAge; age <= inputs.deathAge; age++) {
+    const yr = makeYear(age);
+    const yearsFromNow = age - inputs.currentAge;
+    const expenses = inputs.annualExpenses * Math.pow(1 + inputs.inflationRate, yearsFromNow);
+    const ss = age >= inputs.socialSecurityAge ? inputs.socialSecurityMonthly * 12 : 0;
+    yr.socialSecurityIncome = ss;
+    let remaining = Math.max(0, expenses - ss);
+
+    // 1. Drain taxable first
+    if (remaining > 0 && taxable > 0) {
+      const w = Math.min(taxable, remaining);
+      yr.taxableWithdrawal = w;
+      taxable -= w;
+      remaining -= w;
+    }
+    // 2. Then cash
+    if (remaining > 0 && cash > 0) {
+      const w = Math.min(cash, remaining);
+      yr.cashWithdrawal = w;
+      cash -= w;
+      remaining -= w;
+    }
+    // 3. RMD (forced) + any shortfall from Traditional
+    const rmd = getRMD(age, trad);
+    const tradNeed = Math.max(rmd, remaining);
+    if (tradNeed > 0 && trad > 0) {
+      const tradW = Math.min(trad, tradNeed);
+      trad -= tradW;
+      yr.traditionalWithdrawal = tradW;
+      remaining -= Math.min(tradW, remaining);
+    }
+    // 4. Roth as absolute last resort (preserve tax-free legacy)
+    if (remaining > 0 && roth > 0) {
+      const w = Math.min(roth, remaining);
+      yr.rothWithdrawal = w;
+      roth -= w;
+      remaining -= w;
+    }
+
+    const ordinaryIncome = yr.traditionalWithdrawal;
+    const ltcgIncome = yr.taxableWithdrawal * (1 - costBasis);
+    yr.magi = ordinaryIncome + ltcgIncome + ss * 0.85;
+
+    const taxes = computeYearTaxes(ordinaryIncome, ltcgIncome, ss, inputs.filingStatus);
+    yr.federalTax = taxes.federalTax;
+    yr.ltcgTax = taxes.ltcgTax;
+    yr.irmaaSurcharge = age >= 65 ? calculateIRMAA(yr.magi, inputs.filingStatus) : 0;
+    yr.parentTax = taxes.federalTax + taxes.ltcgTax + yr.irmaaSurcharge;
+    yr.acaSubsidy = age < 65 ? calculateACASubsidy(yr.magi, age, inputs.householdSize) : 0;
+
+    trad *= 1 + inputs.growthRate;
+    roth *= 1 + inputs.growthRate;
+    taxable *= 1 + inputs.growthRate;
+    if (taxable > 0) costBasis *= 1 / (1 + inputs.growthRate);
+
+    yr.traditionalBalance = trad;
+    yr.rothBalance = roth;
+    yr.taxableBalance = taxable;
+    yr.cashBalance = cash;
+    yr.totalBalance = trad + roth + taxable + cash;
+    yr.heirTaxIfDeathThisYear = calculateHeirTax(trad, inputs.heirTaxBracket);
+    yr.rothPercentOfTotal = yr.totalBalance > 0 ? roth / yr.totalBalance : 0;
+
+    years.push(yr);
+  }
+  return years;
+};
+
 // Strategy 1: Conventional — Traditional first
 const simulateConventional: StrategyFn = (inputs, start) => {
   const years: FamilyTaxYearResult[] = [];
@@ -525,7 +600,12 @@ function summarize(
   const totalAcaSubsidies = years.reduce((s, y) => s + y.acaSubsidy, 0);
   const lastYear = years[years.length - 1];
   const heirTaxAtDeath = lastYear ? calculateHeirTax(lastYear.traditionalBalance, heirBracket) : 0;
-  const totalFamilyTax = parentLifetimeTax + heirTaxAtDeath - totalAcaSubsidies;
+  // Headline metric: parent tax + heir tax. ACA tracked separately so it doesn't hide heir cost.
+  const totalFamilyTax = parentLifetimeTax + heirTaxAtDeath;
+
+  const pretaxInheritance = lastYear?.totalBalance ?? 0;
+  const afterTaxInheritance = Math.max(0, pretaxInheritance - heirTaxAtDeath);
+  const inheritanceKeptPercent = pretaxInheritance > 0 ? afterTaxInheritance / pretaxInheritance : 1;
 
   return {
     id,
@@ -537,6 +617,9 @@ function summarize(
     heirTaxAtDeath,
     totalFamilyTax,
     rothPercentToHeirs: lastYear?.rothPercentOfTotal ?? 0,
+    pretaxInheritance,
+    afterTaxInheritance,
+    inheritanceKeptPercent,
     balanceAtDeath: lastYear
       ? {
           traditional: lastYear.traditionalBalance,
@@ -553,6 +636,12 @@ export function runFamilyTaxStrategies(inputs: FamilyTaxInputs): FamilyTaxStrate
   const start = simulateAccumulation(inputs);
 
   const strategies: [string, string, string, StrategyFn][] = [
+    [
+      'do-nothing',
+      'Do Nothing (RMDs Only)',
+      'No Roth conversions. Live off taxable/cash, take RMDs at 73+. Traditional grows huge — heirs inherit the tax bill.',
+      simulateDoNothing,
+    ],
     [
       'conventional',
       'Conventional',
