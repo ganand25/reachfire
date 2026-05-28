@@ -282,10 +282,20 @@ export function RetirementClient(): React.JSX.Element {
 
             {/* Account Balances */}
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-              <h2 className="font-semibold text-sm flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-primary" />
-                Account Balances
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-sm flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                  Account Balances
+                </h2>
+                <span className="text-xs text-muted-foreground">
+                  Total:{' '}
+                  <span className="font-bold tabular-nums text-primary text-sm">
+                    {formatMoney(
+                      inputs.traditionalBalance + inputs.rothBalance + inputs.taxableBalance
+                    )}
+                  </span>
+                </span>
+              </div>
               <CurrencyInput
                 label="Traditional 401k/IRA"
                 value={inputs.traditionalBalance}
@@ -313,16 +323,6 @@ export function RetirementClient(): React.JSX.Element {
                 format="number"
                 hint="What % of your brokerage is original investment (not gains)"
               />
-              <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 mt-1">
-                <span className="text-xs font-medium text-muted-foreground">
-                  Total today
-                </span>
-                <span className="font-bold tabular-nums text-base text-primary">
-                  {formatMoney(
-                    inputs.traditionalBalance + inputs.rothBalance + inputs.taxableBalance
-                  )}
-                </span>
-              </div>
             </div>
 
             {/* Annual Contributions */}
