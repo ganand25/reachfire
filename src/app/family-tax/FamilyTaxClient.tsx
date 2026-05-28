@@ -271,6 +271,19 @@ export function FamilyTaxClient(): React.JSX.Element {
                 onChange={(v) => update('taxableCostBasisPercent', v)}
                 format="number"
               />
+              <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-3 py-2.5 mt-1">
+                <span className="text-xs font-medium text-muted-foreground">
+                  Total today
+                </span>
+                <span className="font-bold tabular-nums text-base text-primary">
+                  {formatMoney(
+                    inputs.traditionalBalance +
+                      inputs.rothBalance +
+                      inputs.taxableBalance +
+                      inputs.cashBalance
+                  )}
+                </span>
+              </div>
             </div>
 
             <div className="rounded-xl border border-border bg-card p-5 space-y-4">
